@@ -158,7 +158,7 @@ readDataFrame <- function(dataFrame = NA,
 #'
 #' @description function factory to read excel data
 #'
-#' @note use the 'openxlsx' package to read the data
+#' @note Uses the 'XLConnect' package to read the data from the file
 #'
 #' @param filename name of the excel file from which the data to read
 #' @param sheet name or number of the sheet in the excel file to read data from

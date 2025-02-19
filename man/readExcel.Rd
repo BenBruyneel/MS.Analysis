@@ -37,7 +37,7 @@ returns a list of two objects: info and data
 function factory to read excel data
 }
 \note{
-use the 'openxlsx' package to read the data
+Uses the 'XLConnect' package to read the data from the file
 }
 \examples{
 # mtcars xlsx file from demoFiles subfolder of package XLConnect
