@@ -20,7 +20,7 @@
 #' ifelseProper(TRUE, c(1,1), c("B","B"))
 #' ifelseProper(FALSE, c(1,1), c("B","B"))
 #'
-#' @export
+#' @noRd
 ifelseProper <- function(logicValue = NULL, ifTrue = NULL, ifFalse = NULL){
   if (missing(logicValue)){
     return(NULL)
