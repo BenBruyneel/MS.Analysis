@@ -2,7 +2,7 @@
 % Please edit documentation in R/tools.R
 \name{ifelseProper}
 \alias{ifelseProper}
-\title{ifelse replacement for properly returning all datatypes.}
+\title{ifelseProper}
 \usage{
 ifelseProper(logicValue = NULL, ifTrue = NULL, ifFalse = NULL)
 }
@@ -15,11 +15,21 @@ if missing or not logical then the function will return NULL.}
 \item{ifFalse}{variable or expression to be returned when logicValue == FALSE}
 }
 \value{
-depending on logicValue, ifTrue ir ifFalse.
+depending on logicValue, ifTrue or ifFalse
 }
 \description{
-ifelse replacement for properly returning all datatypes.
+ifelse replacement for properly returning all datatypes. Regular
+\link[base]{ifelse} is not capable of working with more complicated
+datatypes (like multi element vectors) for 'yes' and 'no' arguments
 }
 \note{
 not vectorized
+}
+\examples{
+ifelse(TRUE, 1, "B")
+ifelse(TRUE, c(1,1), "B")
+ifelse(FALSE, c(1,1), c("B","B"))
+ifelseProper(TRUE, c(1,1), c("B","B"))
+ifelseProper(FALSE, c(1,1), c("B","B"))
+
 }

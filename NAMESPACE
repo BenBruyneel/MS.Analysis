@@ -3,3 +3,4 @@
 export(ifelseProper)
 export(readData)
 export(readDataFrame)
+export(readExcel)
