@@ -1,4 +1,4 @@
-# ---- basic data load functions ----
+# ---- Basic data load functions ----
 
 #' @title readData
 #'
