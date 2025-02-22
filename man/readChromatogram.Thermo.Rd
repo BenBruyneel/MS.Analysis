@@ -37,7 +37,7 @@ data function. Should be named list format or a data.frame, default is NA}
 }
 \value{
 a function that reads the data from the specified .raw file and returns a
-list of two objects: info and data
+list (of lists with two objects: info and data)
 }
 \description{
 function factory that generates a function that reads data from
@@ -48,10 +48,17 @@ the file for this function needs to be '.raw' format. Internally the
 'rawrr' package is used to do the actual data extraction
 }
 \examples{
-demoRaw <- fs::path_package("extdata", "drugx_15.raw", package = "MS.Analysis")
+demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
 result <- readChromatogram.Thermo(filename = demoRaw, type = "tic", filter = "ms2")()
 result[[1]]$info
 result[[1]]$data |> head(10)
 with(result[[1]]$data, plot(rt, intensity, type = "l"))
+demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+result <- readChromatogram.Thermo(filename = demoRaw, type = "xic", filter = "ms2",
+ mz = c(397.16, 448.13), tolerance = 500)()
+result[[1]]$info
+with(result[[1]]$data, plot(rt, intensity, type = "l"))
+result[[2]]$info
+with(result[[2]]$data, plot(rt, intensity, type = "l"))
 
 }
