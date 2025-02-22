@@ -92,6 +92,4 @@ test_that("readChromatogram.Thermo works", {
   expect_equal(as.character(max(result[[2]]$data[,1])), "7.00066666666667")
   expect_equal(as.character(min(result[[2]]$data[,2])), "0")
   expect_equal(as.character(max(result[[2]]$data[,2])), "4614730")
-
-
 })

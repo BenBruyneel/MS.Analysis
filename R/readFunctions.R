@@ -246,14 +246,21 @@ readExcel <- function(filename, sheet = 1,
 #'  data function. Should be named list format or a data.frame, default is NA
 #'
 #' @return a function that reads the data from the specified .raw file and returns a
-#'  list of two objects: info and data
+#'  list (of lists with two objects: info and data)
 #'
 #' @examples
-#' demoRaw <- fs::path_package("extdata", "drugx_15.raw", package = "MS.Analysis")
+#' demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
 #' result <- readChromatogram.Thermo(filename = demoRaw, type = "tic", filter = "ms2")()
 #' result[[1]]$info
 #' result[[1]]$data |> head(10)
 #' with(result[[1]]$data, plot(rt, intensity, type = "l"))
+#' demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+#' result <- readChromatogram.Thermo(filename = demoRaw, type = "xic", filter = "ms2",
+#'  mz = c(397.16, 448.13), tolerance = 500)()
+#' result[[1]]$info
+#' with(result[[1]]$data, plot(rt, intensity, type = "l"))
+#' result[[2]]$info
+#' with(result[[2]]$data, plot(rt, intensity, type = "l"))
 #'
 #' @export
 readChromatogram.Thermo <- function(filename,
@@ -261,7 +268,7 @@ readChromatogram.Thermo <- function(filename,
                                     tolerance = 10,
                                     filter = "ms",
                                     type = "xic",
-                                    additionalInfo = NA){    # additionalInfo: either a list, data.frame or NA
+                                    additionalInfo = NA){
   force(filename)
   force(mz)
   force(tolerance)
