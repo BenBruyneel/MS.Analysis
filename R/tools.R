@@ -57,3 +57,48 @@ ifelseProper <- function(logicValue = NULL, ifTrue = NULL, ifFalse = NULL){
 is.Class <- function(object, whichClass){
   return(whichClass %in% class(object))
 }
+
+#' @title strReplaceAll
+#'
+#' @description extended version of str_replace_all from the stringr package.
+#'  More than one pattern and replacement can be replaced
+#'
+#' @note patterns (and their) replacements are handled sequentially, so one after
+#'  another
+#'
+#' @param string one or more character vectors containing parts that need to be
+#'  replaced
+#' @param pattern one or more character vectors that need to be replaced
+#' @param replacement one or more character vectors that are used as replacements
+#'  This argument has to be either length one (used for all patterns) or must have
+#'  the same length as the pattern argument
+#'
+#' @returns character vector(s)
+#'
+#' @examples
+#' strReplaceAll(string = c("Hello", "Word"), pattern = "r", replacement = "rl")
+#' strReplaceAll(string = c("Hello", "Word"), pattern = c("e","o"), replacement = "")
+#' strReplaceAll(string = c("Hello", "Word"), pattern = c("e","o"), replacement = "")
+#' strReplaceAll(string = c("Hello", "Word"), pattern = c("e","o"), replacement = c("a", "-"))
+#'
+#' @noRd
+strReplaceAll <- function(string, pattern = NA, replacement = ""){
+  if (identical(pattern, NA)){
+    return(string)
+  }
+  if (length(replacement) == 1){
+    replacement <- rep(replacement, length(pattern))
+  } else {
+    if (length(replacement) != length(pattern)){
+      stop("pattern & replacement arguments must be of same length")
+    }
+  }
+  for (strCounter in 1:length(string)){
+    for (counter in 1:length(pattern)){
+      string[strCounter] <- stringr::str_replace_all(string[strCounter],
+                                                     pattern = pattern[counter],
+                                                     replacement = replacement[counter])
+    }
+  }
+  return(string)
+}

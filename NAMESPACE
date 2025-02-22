@@ -1,5 +1,6 @@
 importFrom(fs, "path_package")
-export(readChromatogram.Thermo)
 export(readData)
 export(readDataFrame)
 export(readExcel)
+export(readChromatogram.Thermo)
+export(readSpectrum.Thermo)

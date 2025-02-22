@@ -1,0 +1,240 @@
+# ---- Thermo data load functions ----
+
+#' @title readChromatogram.Thermo
+#'
+#' @description function factory that generates a function that reads data from
+#'  a thermo MS chromatogram file.
+#'
+#' @note the file for this function needs to be '.raw' format. Internally the
+#'  'rawrr' package is used to do the actual data extraction
+#'
+#' @param filename name of the .raw file from which the data is to be read
+#' @param mz specifies the m/z('s) to make an extracted ion chormatogram of.
+#'  Ignored unless the 'type' argument is "xic"
+#' @param tolerance spcifies the tolerance to use when extracting an ion
+#'  chromatogram. Ignored unless the 'type' argument is "xic". Please note that
+#'  this value is in 'ppm' and that a value of 10 is the same as a mass
+#'  tolerance of 5 ppm in eg the Thermo freestyle software (the 5 specified
+#'  there is a range m/z-5 till m/z+5). Here 10 means m/z-5 ppm till m/z+5 ppm.
+#' @param filter specifies the scan filter to be used, default = "ms". Valid is
+#'  also eg "ms2" for ms2 data (if present in the file).
+#' @param type specifies the data type to read, possible is: "tic"  (total ion
+#'  current), "bpc" (base peak chromatogram) or "xic" (extracted ion
+#'  chromatogram)
+#' @param additionalInfo additional info to be added to the result of the read
+#'  data function. Should be named list format or a data.frame, default is NA
+#'
+#' @return a function that reads the data from the specified .raw file and returns a
+#'  list (of lists with two objects: info and data)
+#'
+#' @examples
+#' demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+#' result <- readChromatogram.Thermo(filename = demoRaw, type = "tic", filter = "ms2")()
+#' result[[1]]$info
+#' result[[1]]$data |> head(10)
+#' with(result[[1]]$data, plot(rt, intensity, type = "l"))
+#' demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+#' result <- readChromatogram.Thermo(filename = demoRaw, type = "xic", filter = "ms2",
+#'  mz = c(397.16, 448.13), tolerance = 500)()
+#' result[[1]]$info
+#' with(result[[1]]$data, plot(rt, intensity, type = "l"))
+#' result[[2]]$info
+#' with(result[[2]]$data, plot(rt, intensity, type = "l"))
+#'
+#' @export
+readChromatogram.Thermo <- function(filename,
+                                    mz = NA,
+                                    tolerance = 10,
+                                    filter = "ms",
+                                    type = "xic",
+                                    additionalInfo = NA){
+  force(filename)
+  force(mz)
+  force(tolerance)
+  force(filter)
+  force(type)
+  force(additionalInfo)
+  function(...){
+    tempData <- rawrr::readChromatogram(rawfile = filename,
+                                        mass = mz,
+                                        tol = tolerance,
+                                        filter = filter,
+                                        type = type)
+    result <- list()
+    #    if (type == "xic"){
+    if (!identical(additionalInfo, NA )){
+      if (is.Class(additionalInfo, "data.frame")){
+        if (length(mz) != nrow(additionalInfo)){
+          additionalInfo <- purrr::map_df(1:length(mz), ~additionalInfo[1,])
+        }
+      } else {
+        if (length(additionalInfo) != length(mz)){
+          additionalInfo <- rep(additionalInfo[1], length(mz))
+        }
+
+      }
+    }
+    if (type == "xic"){
+      for (counter in 1:length(tempData)){
+        result[[counter]] <- readData(
+          dataFrame = data.frame(rt = as.numeric(tempData[[counter]]$times),
+                                 intensity = as.numeric(tempData[[counter]]$intensities)),
+          columnNames = c("rt", "intensity"),
+          info = list(source = "thermo",
+                      filename = filename,
+                      mz = mz[counter],
+                      tolerance = tolerance,
+                      filter = filter,
+                      type = "xic")
+        )()
+        if (!identical(additionalInfo, NA)){
+          if (is.Class(additionalInfo, "data.frame")){
+            toAdd <- as.list(additionalInfo[counter,])
+            names(toAdd) <- colnames(additionalInfo)
+          } else {
+            if (!identical(additionalInfo[[counter]], NA)){
+              toAdd <- additionalInfo[counter]
+            } else {
+              toAdd <- NA
+            }
+          }
+          if (!identical(toAdd, NA)){
+            result[[counter]]$info <- append(result[[counter]]$info, toAdd)
+          }
+        }
+      }
+    } else {
+      result[[1]] <- readData(
+        dataFrame = data.frame(rt = as.numeric(tempData$times),
+                               intensity = as.numeric(tempData$intensities)),
+        columnNames = c("rt", "intensity"),
+        info = list(source = "thermo",
+                    filename = filename,
+                    mz = ifelse(is.null(mz),
+                                NA,
+                                mz),
+                    tolerance = tolerance,
+                    filter = filter,
+                    type = type)
+      )()
+      if (!identical(additionalInfo[[1]], NA)){
+        if (is.Class(additionalInfo[[1]], "data.frame")){
+          cnames <- colnames(additionalInfo[[1]])
+          additionalInfo[[1]] <- as.list(additionalInfo[[1]])
+          names(additionalInfo[[1]]) < cnames
+        }
+        result[[1]]$info <- append(result[[1]]$info, additionalInfo)
+      }
+    }
+    return(result)
+  }
+}
+
+#' @title readSpectrum.Thermo
+#'
+#' @description function factory that generates a function that reads spectral
+#'  data from a thermo MS chromatogram file
+#'
+#' @note the file(s) for this function needs to be '.raw' format. Internally the 'rawrr'
+#'  package is used to do the actual data extraction
+#'
+#' @param filename name of the .raw file from which the data is to be read
+#' @param scan one or more integer vectors: the scan numbers to be extracted
+#' @param centroided whether to retrieve the centroided spectrum (TRUE) or not (FALSE,
+#'  default). If set to TRUE, please note that this only works properly when there
+#'  is centroided data included in the spectrum. If there is no centroided data,
+#'  then the 'regular' spectral data 'stream' will be used - which can be centroid
+#'  (in nature), but doesn't have to be. In such cases it is up to the user to
+#'  know (via the acquisition method) what type of data it is. Please also note
+#'  that the info section a returned spectrum will contain this parameter. If it
+#'  is not correct, then it should be changed manually to the correct value.
+#'
+#' @return a function that reads data from the specified .raw file and returns a
+#'  list (of lists with two objects: info and data). The function generated takes
+#'  a single argument called parameters, which defines what ends up in the info
+#'  object. Options are "basic" (default), "extended" and "full". "full" attempts
+#'  to get all meta data from the spectrum into the info object and is somewhat
+#'  experimental.
+#'
+#' @examples
+#' demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+#' result <- readSpectrum.Thermo(filename = demoRaw, scan = 245, centroided = TRUE)()
+#' result[[1]]$info
+#' with(result[[1]]$data, plot(mz, intensity, type = "h"))
+#' result <- readSpectrum.Thermo(filename = demoRaw, scan = c(245, 246),
+#'  centroided = TRUE)()
+#' result[[1]]$info
+#' with(result[[1]]$data, plot(mz, intensity, type = "h"))
+#' result[[2]]$info
+#' with(result[[2]]$data, plot(mz, intensity, type = "h"))
+#'
+#' @export
+readSpectrum.Thermo <- function(filename,
+                                scan = NULL,
+                                centroided = FALSE){
+  force(filename)
+  force(scan)
+  force(centroided)
+  function(parameters = c("basic", "extended", "full")[1]){
+    tempData <- rawrr::readSpectrum(rawfile = filename,
+                                    scan = scan)
+    result <- list()
+    for (counter in 1:length(scan)){
+      data <- NA
+      if (centroided){
+        if (("centroid.mZ" %in% names(tempData)) &
+            ("centroid.intensity" %in% names(tempData))){
+          data <- data.frame(mz = tempData[[counter]]$centroid.mZ,
+                             intensity = tempData[[counter]]$centroid.intensity)
+        }
+      }
+      if (identical(data, NA)) {
+        data <- data.frame(mz = tempData[[counter]]$mZ,
+                           intensity = tempData[[counter]]$intensity)
+      }
+      info <- list(source = "thermo",
+                   filename = filename,
+                   rt = tempData[[counter]]$rtinseconds/60,
+                   scan = scan[counter],
+                   scanType = tempData[[counter]]$scanType,
+                   centroided = centroided)
+      if (parameters == "extended"){
+        info <- append(info,
+                       list(
+                         microScanCount = as.integer(tempData[[counter]][["Micro Scan Count:"]]),
+                         ionInjectionTime = as.numeric(tempData[[counter]]["Ion Injection Time (ms):"]),
+                         elapsedTime = as.numeric(tempData[[counter]]["Elapsed Scan Time (sec):"]),
+                         resolutionMS = as.integer(tempData[[counter]][["Orbitrap Resolution:"]]),
+                         masterScan = as.integer(tempData[[counter]][["Master Scan Number:"]])))
+
+      } else {
+        if (parameters == "full"){
+          whichOnes <- which(unname(purrr::map_int(tempData[[counter]], ~length(.x))) == 1)
+          tempData[[counter]] <- tempData[[counter]][whichOnes]
+          removeOdd <- which(names(tempData[[counter]]) == "\001")
+          if (length(removeOdd)>0){
+            tempData[[counter]] <- tempData[[counter]][-c(removeOdd)]
+          }
+          names(tempData[[counter]]) <- strReplaceAll(names(tempData[[counter]]),
+                                                pattern = c(" ", ":", "/", "\\(", "\\)"), replacement = "")
+          findDoubles <- which(table(names(tempData[[counter]])) > 1)
+          for (counter2 in 1:length(findDoubles)){
+            whichOnes <- which(names(tempData[[counter]]) == names(findDoubles[counter2]))
+            for (counter3 in 1:length(whichOnes)){
+              names(tempData[[counter]])[whichOnes[counter3]] <- paste(c(names(tempData[[counter]])[whichOnes[counter3]], "_", counter2), collapse = "")
+            }
+          }
+          info <- append(list(source = "thermo",
+                              filename = filename,
+                              rt = tempData[[counter]]$rtinseconds/60,
+                              centroided = centroided),
+                         tempData[[counter]])
+        }
+      }
+      result[[counter]] <- readData(dataFrame = data,
+                                    columnNames = c("mz","intensity"),
+                                    info = info)()
+    }
+    return(result)
+  }
+}
