@@ -30,6 +30,19 @@ test_that("readDataFrame works", {
   expect_equal(result[[2]]$info$source, "data")
 })
 
+test_that("readCSV works", {
+  filename <- tempfile()
+  utils::write.csv(datasets::mtcars, file = filename, row.names = FALSE)
+  result <- readCSV(filename = filename)()
+  unlink(filename)
+  expect_equal(result[[1]]$info$source, "csv")
+  expect_equal(result[[1]]$info$filename, filename)
+  expect_equal(colnames(result[[1]]$data), c("x", "y"))
+  expect_equal(nrow(result[[1]]$data), 32)
+  expect_equal(sum(result[[1]]$data[,1]), sum(datasets::mtcars[,1]))
+  expect_equal(sum(result[[1]]$data[,2]), sum(datasets::mtcars[,2]))
+})
+
 test_that("readExcel works", {
   demoExcelFile <- system.file("demoFiles/mtcars.xlsx", package = "XLConnect")
   result <- readExcel(demoExcelFile)
@@ -42,4 +55,13 @@ test_that("readExcel works", {
   expect_equal(result[["info"]][["source"]], "xlsx")
   result <- readExcel(demoExcelFile, rowNames = rownames(datasets::mtcars))()
   expect_identical(result$data, datasets::mtcars)
+})
+
+test_that("fileInfo works", {
+  filename <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".txt")
+  writeLines(c("test", "file"), filename)
+  result <- fileInfo(filename)()
+  unlink(filename)
+  expect_equal(result[[1]]$info$filename, filename)
+  expect_equal(result[[1]]$data$data, NA)
 })

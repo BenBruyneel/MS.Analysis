@@ -154,6 +154,70 @@ readDataFrame <- function(dataFrame = NA,
   }
 }
 
+#' @title readCSV
+#'
+#' @description function factory which generates a function that reads a .csv
+#'  file and returns an single element list of data/info object (also a list).
+#'  See also \link{readDataFrame}
+#'
+#' @param filename the name of the file which the data are to be read from.
+#' @param columns specifies which columns to take from the dataFrame. Can be a character or
+#'  an integer vector. Please note that the specified columns HAVE to exist in all of the
+#'  data.frame's in the list (dataFrame argument)
+#' @param columnNames specifies which column names to give to the data.frame. Should be
+#'  same length as the columns argument. Applied to ALL data.frame's in the list
+#' @param sep the field separator character.
+#' @param skip integer: the number of lines of the data file to skip before
+#'  beginning to read data.
+#' @param header a logical value indicating whether the file contains the names
+#'  of the variables as its first line. See also \link[utils]{read.csv}
+#' @param additionalInfo named list object that contains info to be put into the
+#'  info data.frame of the info objects. The intention is to put some relevant
+#'  information there, like source of the data, file names and other information
+#'  which makes it possible to recreate the data. Again, this argument is applied
+#'  to all elements in the data.frame list. If not specified (default is NA), then
+#'  only a basic info element is generated with source = "csv" and filename =
+#'  filename.
+#'
+#' @returns a function that will generate a list of elements (length is 1 in this case!)
+#'  which each two objects: info and data
+#'
+#' @examples
+#' filename <- tempfile()
+#' utils::write.csv(datasets::mtcars, file = filename, row.names = FALSE)
+#' result <- readCSV(filename = filename)()
+#' result[[1]]$info
+#' result[[1]]$data |> head(10)
+#' unlink(filename)
+#' @export
+readCSV <- function(filename, columns = 1:2,
+                    columnNames = c("x","y"),
+                    sep = ",", skip = 0, header = TRUE,
+                    additionalInfo = NA){
+  force(filename)
+  force(columns)
+  force(columnNames)
+  force(sep)
+  force(skip)
+  force(header)
+  force(additionalInfo)
+  function(...){
+    tempdf <- utils::read.csv(filename,
+                              sep = sep, skip = skip,
+                              header = header)
+    readDataFrame(dataFrame = list(tempdf),
+                  columns = columns,
+                  columnNames = columnNames,
+                  rowNames = NULL,
+                  info = ifelseProper(identical(additionalInfo, NA),
+                                      list(source = "csv",
+                                           filename = filename),
+                                      append(list(source = "csv",
+                                                  filename = filename),
+                                             additionalInfo)))()
+  }
+}
+
 #' @title readExcel
 #'
 #' @description function factory to read excel data
@@ -218,5 +282,41 @@ readExcel <- function(filename, sheet = 1,
                                  append(list(source = "xlsx",
                                              filename = filename),
                                         additionalInfo)))()
+  }
+}
+
+# ---- File Info ----
+
+#' @title fileInfo
+#'
+#' @description Internal function factory that generates a function for a simple
+#'  info element for the fileInfo.CSV function. Note that it does not read data,
+#'  it only generates an object with the filename in the info object
+#'
+#' @param filename name of the file from which the data is to be read
+#'
+#' @return list of two objects: info (contains only filename) and data (empty)
+#'
+#' @note currently only for internal use, may be removed
+#'
+#' @examples
+#' filename <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".txt")
+#' writeLines(c("test", "file"), filename)
+#' result <- fileInfo(filename)()
+#' result[[1]]$info
+#' result[[1]]$data
+#' unlink(filename)
+#'
+#' @noRd
+fileInfo <- function(filename){
+  force(filename)
+  function(...){
+    if (!file.exists(filename)){
+      stop("File does not exist")
+    }
+    return(
+      readDataFrame(dataFrame = list(data.frame(data = NA)),
+                    info = list(filename = filename))()
+    )
   }
 }
