@@ -80,7 +80,7 @@ readData <- function(dataFrame = NA,
 #'  a organized list of readData functions from a list of data.frames's.
 #'  Essentially a list version of \link{readData}
 #'
-#' @param dataFrame a -list- of data.frame's
+#' @param dataFrame a -list- of data.frame's (or NA)
 #' @param columns specifies which columns to take from the dataFrame. Can be a character or
 #'  an integer vector. Please note that the specified columns HAVE to exist in all of the
 #'  data.frame's in the list (dataFrame argument)
@@ -293,9 +293,10 @@ readExcel <- function(filename, sheet = 1,
 #'  info element for the fileInfo.CSV function. Note that it does not read data,
 #'  it only generates an object with the filename in the info object
 #'
-#' @param filename name of the file from which the data is to be read
+#' @param filename name of the file from which the info is to be read
 #'
-#' @return list of two objects: info (contains only filename) and data (empty)
+#' @return a function that returns list of two objects: info (contains only
+#'  filename) and data (empty)
 #'
 #' @note currently only for internal use, may be removed
 #'
@@ -307,7 +308,7 @@ readExcel <- function(filename, sheet = 1,
 #' result[[1]]$data
 #' unlink(filename)
 #'
-#' @noRd
+#' @export
 fileInfo <- function(filename){
   force(filename)
   function(...){
@@ -320,3 +321,39 @@ fileInfo <- function(filename){
     )
   }
 }
+
+#' @title fileInfo.CSV
+#'
+#' @description generates a function for a simple info element for a CSV function.
+#'  Note that it does not read data, it only generates an object with the filename
+#'  and the names of the columns in the info object
+#'
+#' @param filename name of the file from which the info is to be read. This must
+#'  be a csv-style file that has headers and can be read using
+#'  \link[utils]{read.csv}
+#'
+#' @returns a function that returns list of two objects: info (contains filename
+#'  and description) and data (empty)
+#'
+#' @note the returned function has two (functional) arguments: sep (default = ",")
+#'  and ... which can be used to pass additional arguments onto
+#'  \link[utils]{read.csv}
+#'
+#' @examples
+#' filename <- tempfile()
+#' utils::write.csv(datasets::mtcars, file = filename, row.names = FALSE)
+#' result <- fileInfo.CSV(filename = filename)()
+#' result[[1]]$info
+#' result[[1]]$data
+#'
+#' @export
+fileInfo.CSV <- function(filename){
+  force(filename)
+  function(sep = ",", ...){
+    result <- fileInfo(filename)()
+    tempResult <- utils::read.csv(file = filename, header = TRUE, sep = sep, nrows = 1, ...)
+    result[[1]]$info[["description"]] <- colnames(tempResult)
+    return(result)
+  }
+}
+

@@ -65,3 +65,39 @@ test_that("fileInfo works", {
   expect_equal(result[[1]]$info$filename, filename)
   expect_equal(result[[1]]$data$data, NA)
 })
+
+test_that("fileInfo.CSV works", {
+  filename <- tempfile()
+  utils::write.csv(datasets::mtcars, file = filename, row.names = FALSE)
+  result <- fileInfo.CSV(filename = filename)()
+  unlink(filename)
+  expect_equal(result[[1]]$info$filename, filename)
+  expect_equal(result[[1]]$info$description, colnames(datasets::mtcars))
+  expect_equal(result[[1]]$data$data, NA)
+})
+
+test_that("fileInfo.Thermo works", {
+  demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+  result <- fileInfo.Thermo(demoRaw, readIndex = TRUE)()
+  expect_length(result[[1]]$info, 38)
+  expect_equal(result[[1]]$info$filename,demoRaw)
+  expect_equal(result[[1]]$info$RAWfile, "reserpine07.RAW")
+  expect_equal(result[[1]]$info$Numberofscans, 403)
+  expect_equal(ncol(result[[1]]$data), 9)
+  expect_equal(colnames(result[[1]]$data),
+                        c('scan','scanType','StartTime', 'precursorMass',
+                          'MSOrder','charge','masterScan','dependencyType',
+                          'monoisotopicMz'))
+  expect_equal(nrow(result[[1]]$data), 403)
+  expect_equal(as.character(unique(result[[1]]$data$precursorMass)), "609.2")
+  result <- fileInfo.Thermo(demoRaw, readIndex = FALSE)()
+  expect_length(result[[1]]$info, 38)
+  expect_equal(result[[1]]$info$filename,demoRaw)
+  expect_equal(result[[1]]$info$RAWfile, "reserpine07.RAW")
+  expect_equal(result[[1]]$info$Numberofscans, 403)
+  expect_equal(ncol(result[[1]]$data), 1)
+  expect_equal(colnames(result[[1]]$data),
+               "data")
+  expect_equal(nrow(result[[1]]$data), 1)
+  expect_equal(result[[1]]$data$data, "No Data")
+})

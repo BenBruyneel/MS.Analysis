@@ -14,7 +14,7 @@ readDataFrame(
 )
 }
 \arguments{
-\item{dataFrame}{a -list- of data.frame's}
+\item{dataFrame}{a -list- of data.frame's (or NA)}
 
 \item{columns}{specifies which columns to take from the dataFrame. Can be a character or
 an integer vector. Please note that the specified columns HAVE to exist in all of the

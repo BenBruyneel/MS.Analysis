@@ -238,3 +238,66 @@ readSpectrum.Thermo <- function(filename,
     return(result)
   }
 }
+
+# ---- Thermo file info function ----
+
+#' @title fileInfo.Thermo
+#'
+#' @description function factory that generates a function for an info & data
+#' element with info on a Thermo .raw mass spectrometry file
+#'
+#' @param filename name of the file from which the data is to be read. Must be a
+#'  Thermo Scientific mass spectrometry .raw file
+#' @param readIndex logical vector. If TRUE the data element will contain info
+#'  on all scans in the file. If FALSE then data element will be empty
+#' @param collapseCharacter some of the file info data consists of more than one
+#'  element. These will be pasted together where collapseCharacter defines the
+#'  separator
+#'
+#' @returns a function that returns list of two objects: info (contains only
+#'  file info) and data (empty or index of scans)
+#'
+#' @examples
+#' demoRaw <- fs::path_package("extdata", "reserpine07.RAW", package = "MS.Analysis")
+#' result <- fileInfo.Thermo(filename = demoRaw)()
+#' result[[1]]$info |> as.data.frame()
+#' result[[1]]$data |> head(10)
+#' result <- fileInfo.Thermo(filename = demoRaw, readIndex = FALSE)()
+#' result[[1]]$info |> as.data.frame()
+#' result[[1]]$data
+#' @export
+fileInfo.Thermo <- function(filename, readIndex = TRUE, collapseCharacter = "-"){
+  force(filename)
+  force(readIndex)
+  force(collapseCharacter)
+  function(...){
+    if (!file.exists(filename)){
+      stop("File does not exist")
+    }
+    tempList <- list(filename = filename)
+    tempList <- append(tempList , rawrr::readFileHeader(filename))
+    tLengths <- unlist(lapply(tempList, length))
+    for (counter in which(tLengths > 1)){
+      # paste together multiple element vectors in the list
+      tempList[[counter]] <- paste(tempList[[counter]],
+                                   collapse = collapseCharacter)
+    }
+    if (readIndex){
+      tempIndex <- rawrr::readIndex(filename)
+    } else {
+      tempIndex <- NA
+    }
+    names(tempList) <- gsub(names(tempList),
+                            pattern = " ", replacement = "")
+    names(tempList) <- gsub(names(tempList),
+                            pattern = "\\(", replacement = "")
+    names(tempList) <- gsub(names(tempList),
+                            pattern = "\\)", replacement = "")
+    return(
+      readDataFrame(dataFrame = ifelseProper(identical(tempIndex, NA),
+                                             NA,
+                                             list(tempIndex)),
+                    info = tempList)()
+    )
+  }
+}
