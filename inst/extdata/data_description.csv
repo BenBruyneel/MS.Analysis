@@ -1,2 +1,4 @@
 filename, source, comment
+ExcelExp_Long.XLS, "-" , "Testfile Thermo Scientific processing output"
+ExcelExp_Short.XLS, "-" , "Testfile Thermo Scientific processing output (short version)"
 reserpine07.RAW, "Thermo Scientific", "One of the example files delivered with installation of Xcalibur software"
