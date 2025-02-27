@@ -428,21 +428,24 @@ processingThermo.creatorInfo <- function(sheet){
 #' @export
 processingThermo.componentData <- function(sheet){
   if (is.Class(sheet, "list")){
-    tempdf <- purrr::map_df(sheet, ~processingThermo.componentData(.x))
-    return(tempdf)
+    tempdf2 <- purrr::map(sheet, ~processingThermo.componentData(.x))
+    resultdf <- tempdf2[[1]]
+    for (counter in 2:length(tempdf2)){
+      resultdf <- rbind(resultdf, tempdf2[[counter]])
+    }
+    return(resultdf)
   } else {
-    sheet <- as.data.frame(sheet)
-    whereIs <- which(grepl(sheet[,1], pattern = "Filename"))
-    whereIsEnd <- which(grepl(sheet[,1], pattern = "Created By:"))
-    tempdf <- sheet[(whereIs+1):(whereIsEnd-1),]
-    names(tempdf) <- sheet[whereIs,]
+    thesheet <- as.data.frame(sheet)
+    whereIs <- which(grepl(thesheet[,1], pattern = "Filename"))
+    whereIsEnd <- which(grepl(thesheet[,1], pattern = "Created By:"))
+    tempdf <- thesheet[(whereIs+1):(whereIsEnd-1),]
+    names(tempdf) <- thesheet[whereIs,]
     rownames(tempdf) <- NULL
     # remove empty rows
     toKeep <- purrr::map_lgl(1:nrow(tempdf), ~sum(unname(apply(tempdf[.x,], MARGIN = 2, is.na))) != ncol(tempdf))
     tempdf <- tempdf[toKeep,]
     tempdf$Component <- processingThermo.componentName(sheet)
-    colnames(tempdf) <- stringr::str_replace(colnames(tempdf), pattern = " ", replacement = ".")
+    colnames(tempdf) <- strReplaceAll(colnames(tempdf), pattern = c(" ","\\."), replacement = "")
     return(tempdf)
   }
 }
-
