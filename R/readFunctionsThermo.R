@@ -399,7 +399,12 @@ processingThermo.componentName <- function(sheet){
 #' @export
 processingThermo.creatorInfo <- function(sheet){
   if (is.Class(sheet, "list")){
-    return(purrr::map_df(sheet, ~processingThermo.creatorInfo(.x)))
+    tempdf2 <- purrr::map(sheet, ~processingThermo.creatorInfo(.x))
+    resultdf <- tempdf2[[1]]
+    for (counter in 2:length(tempdf2)){
+      resultdf <- rbind(resultdf, tempdf2[[counter]])
+    }
+    return(resultdf)
   } else {
     whereIs <- which(grepl(as.data.frame(sheet)[,1], pattern = "Created By:"))
     tempdf <- as.data.frame(sheet)[whereIs+2,c(1,3,5)]
