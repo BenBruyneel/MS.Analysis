@@ -1,4 +1,3 @@
-
 test_that("readData works", {
   result <- readData(dataFrame = datasets::mtcars)
   expect_equal(class(result), "function")
