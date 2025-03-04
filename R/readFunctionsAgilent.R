@@ -61,3 +61,74 @@ chromatogramInfo.AgilentExport <- function(commentString, defaultCollapse = ";")
   }
   return(result)
 }
+
+#' @title readChromatogram.AgilentExport.memory
+#'
+#' @description function factory that returns a function that takes the data
+#'  from a character vector which is in the format of an Agilent chromatogram
+#'  export (single chromatogram, not multiple) and returns an object (list) with
+#'  two elements: data (data.frame) and info (list)
+#'
+#' @note this function gets called by \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+#'
+#' @param textLines character vector of the data in Agilent chromatogram export
+#'  format: first line = description, second line = Agilent names for x & y (not
+#'  used) and the rest of the lines are c(rownumbers, x, y). The rownumbers are
+#'  ignored.
+#' @param sep defines the separator for the rownumber-x-y data. Default is ','
+#' @param translateComment defines the function to be used to translate the
+#'  description line. Default is NA. \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+#'  is this package's function that can be used.
+#' @param removePatterns defines which characters to remove from the description
+#'  line (defore translation)
+#' @param dataColumns defines which columns to extract from the data. Default is
+#'  c(2,3). The rownumbers are ignored
+#' @param columnNames defines which names to give to the extracted columns.
+#'  Default is 'rt' (retention time) for x and 'intensity' for y
+#'
+#' @returns a list with two elements: data (data.frame) and info (list)
+#'
+#' @examples
+#' demoFile <- fs::path_package("extdata", "Data0001.CSV", package = "MS.Analysis")
+#' result <- readLines(demoFile, n = 10597)
+#' result |> head()
+#' result <- readChromatogram.AgilentExport.memory(result,
+#'  translateComment = chromatogramInfo.AgilentExport)()
+#' result$data |> head()
+#' result$info
+#'
+#' @export
+readChromatogram.AgilentExport.memory <- function(textLines,
+                                                  sep = ",",
+                                                  translateComment = NA,
+                                                  removePatterns = c("\\\"", "#"),
+                                                  dataColumns = c(2,3),
+                                                  columnNames = c("rt", "intensity")){
+  force(textLines)
+  force(sep)
+  force(translateComment)
+  force(removePatterns)
+  force(dataColumns)
+  force(columnNames)
+  function(...){
+    tempComment <- strReplaceAll(textLines[1],
+                                 pattern = removePatterns,
+                                 replacement = "")
+    tempdf <-purrr:: map_df(textLines[3:length(textLines)],
+                            ~as.data.frame(t(stringr::str_split(.x,
+                                                                pattern = sep)[[1]]))) %>%
+      dplyr::select(dataColumns)
+    colnames(tempdf) <- columnNames
+    tempdf$rt <- as.numeric(tempdf$rt)
+    tempdf$intensity <- as.numeric(tempdf$intensity)
+    readData(dataFrame = tempdf,
+             info = append(list(source = "Agilent",
+                                comment = tempComment),
+                           ifelseProper(
+                             !identical(translateComment, NA),
+                             as.list(translateComment(tempComment)),
+                             NULL)
+             )
+    )()
+  }
+}
