@@ -69,7 +69,8 @@ chromatogramInfo.AgilentExport <- function(commentString, defaultCollapse = ";")
 #'  export (single chromatogram, not multiple) and returns an object (list) with
 #'  two elements: data (data.frame) and info (list)
 #'
-#' @note this function gets called by \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+#' @note this function gets called by the \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+#'  function
 #'
 #' @param textLines character vector of the data in Agilent chromatogram export
 #'  format: first line = description, second line = Agilent names for x & y (not
@@ -86,7 +87,8 @@ chromatogramInfo.AgilentExport <- function(commentString, defaultCollapse = ";")
 #' @param columnNames defines which names to give to the extracted columns.
 #'  Default is 'rt' (retention time) for x and 'intensity' for y
 #'
-#' @returns a list with two elements: data (data.frame) and info (list)
+#' @returns a function that generates a list with two elements: data (data.frame)
+#'  and info (list)
 #'
 #' @examples
 #' demoFile <- fs::path_package("extdata", "Data0001.CSV", package = "MS.Analysis")
@@ -132,3 +134,76 @@ readChromatogram.AgilentExport.memory <- function(textLines,
     )()
   }
 }
+
+#' @title readChromatogram.AgilentExport
+#'
+#' @description function factory that returns a function that takes the data
+#'  from a filename which is in the format of an Agilent chromatogram export
+#'  (single & multiple chromatograms) and returns a list of objects (list) with
+#'  each two elements: data (data.frame) and info (list)
+#'
+#' @note this function gets calls the \code{link[MS.Analysis]{readChromatogram.AgilentExport.memory}}
+#'  function
+#'
+#' @param filename name of the Agilent Chromatogram export file. One export may
+#'  contain more than one chromatogram
+#' @param sep defines the separator for the rownumber-x-y data. Default is ','
+#' @param seekStart default is "#". This defines the character the function needs
+#'  to use to find the separate chromatograms in the export file
+#' @param translateComment defines the function to be used to translate the
+#'  description line. Default is NA. \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+#'  is this package's function that can be used.
+#' @param removePatterns defines which characters to remove from the description
+#'  line (defore translation)
+#' @param dataColumns defines which columns to extract from the data. Default is
+#'  c(2,3). The rownumbers are ignored
+#' @param columnNames defines which names to give to the extracted columns.
+#'  Default is 'rt' (retention time) for x and 'intensity' for y
+#'
+#' @returns a function that generates a list of lists with each two elements:
+#'  data (data.frame) and info (list)
+#'
+#' @examples
+#' demoFile <- fs::path_package("extdata", "Data0001.CSV", package = "MS.Analysis")
+#' result <- readChromatogram.AgilentExport(demoFile)()
+#' length(result)
+#' purrr::map_df(result, ~as.data.frame(.x$info))
+#' result <- readChromatogram.AgilentExport(demoFile,
+#'  translateComment = chromatogramInfo.AgilentExport)()
+#' length(result)
+#' purrr::map_df(result, ~as.data.frame(.x$info))
+#' result[[2]]$data |> head()
+#' plot(result[[2]]$data, type = "l")
+#' result[[3]]$data |> head()
+#' plot(result[[3]]$data, type = "l")
+#'
+#' @export
+readChromatogram.AgilentExport <- function(filename, sep = ",", seekStart = "#",
+                                           translateComment = NA,
+                                           removePatterns = c("\\\"", "#"),
+                                           dataColumns = c(2,3),
+                                           columnNames = c("rt", "intensity")){
+  force(filename)
+  force(sep)
+  force(seekStart)
+  force(translateComment)
+  force(removePatterns)
+  force(dataColumns)
+  force(columnNames)
+  function(...){
+    result <- list()
+    tempLines <- readLines(filename)
+    # note: first line is start & description, second is header
+    starts <- which(grepl(tempLines, pattern = seekStart))[c(TRUE,FALSE)]
+    starts <- append(starts, length(tempLines)+1)
+    for (counter in 1:(length(starts)-1)){
+      result[[counter]] <- readChromatogram.AgilentExport.memory(tempLines[starts[counter]:(starts[counter+1]-1)],
+                                                                 translateComment = translateComment,
+                                                                 removePatterns = removePatterns,
+                                                                 dataColumns = dataColumns,
+                                                                 columnNames = columnNames)()
+    }
+    return(result)
+  }
+}
+

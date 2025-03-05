@@ -35,7 +35,8 @@ c(2,3). The rownumbers are ignored}
 Default is 'rt' (retention time) for x and 'intensity' for y}
 }
 \value{
-a list with two elements: data (data.frame) and info (list)
+a function that generates a list with two elements: data (data.frame)
+and info (list)
 }
 \description{
 function factory that returns a function that takes the data
@@ -44,7 +45,8 @@ export (single chromatogram, not multiple) and returns an object (list) with
 two elements: data (data.frame) and info (list)
 }
 \note{
-this function gets called by \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+this function gets called by the \code{link[MS.Analysis]{readChromatogram.AgilentExport}}
+function
 }
 \examples{
 demoFile <- fs::path_package("extdata", "Data0001.CSV", package = "MS.Analysis")
