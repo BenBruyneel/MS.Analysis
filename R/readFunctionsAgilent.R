@@ -119,7 +119,7 @@ readChromatogram.AgilentExport.memory <- function(textLines,
     tempdf <-purrr:: map_df(textLines[3:length(textLines)],
                             ~as.data.frame(t(stringr::str_split(.x,
                                                                 pattern = sep)[[1]]))) %>%
-      dplyr::select(dataColumns)
+      dplyr::select(tidyr::all_of(dataColumns))
     colnames(tempdf) <- columnNames
     tempdf$rt <- as.numeric(tempdf$rt)
     tempdf$intensity <- as.numeric(tempdf$intensity)
