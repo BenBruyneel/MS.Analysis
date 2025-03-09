@@ -50,7 +50,7 @@ function
 }
 \examples{
 demoFile <- fs::path_package("extdata", "Data0001.CSV", package = "MS.Analysis")
-result <- readLines(demoFile, n = 10597)
+result <- readLines(demoFile, n = 9092)
 result |> head()
 result <- readChromatogram.AgilentExport.memory(result,
  translateComment = chromatogramInfo.AgilentExport)()

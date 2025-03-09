@@ -92,7 +92,7 @@ chromatogramInfo.AgilentExport <- function(commentString, defaultCollapse = ";")
 #'
 #' @examples
 #' demoFile <- fs::path_package("extdata", "Data0001.CSV", package = "MS.Analysis")
-#' result <- readLines(demoFile, n = 10597)
+#' result <- readLines(demoFile, n = 9092)
 #' result |> head()
 #' result <- readChromatogram.AgilentExport.memory(result,
 #'  translateComment = chromatogramInfo.AgilentExport)()
@@ -172,10 +172,10 @@ readChromatogram.AgilentExport.memory <- function(textLines,
 #'  translateComment = chromatogramInfo.AgilentExport)()
 #' length(result)
 #' purrr::map_df(result, ~as.data.frame(.x$info))
-#' result[[2]]$data |> head()
-#' plot(result[[2]]$data, type = "l")
 #' result[[3]]$data |> head()
 #' plot(result[[3]]$data, type = "l")
+#' result[[5]]$data |> head()
+#' plot(result[[5]]$data, type = "l")
 #'
 #' @export
 readChromatogram.AgilentExport <- function(filename, sep = ",", seekStart = "#",
@@ -207,3 +207,89 @@ readChromatogram.AgilentExport <- function(filename, sep = ",", seekStart = "#",
   }
 }
 
+
+#' @title peakListInfo.AgilentExport
+#'
+#' @description translates the information string which comes with export of
+#'  integration info files (peaklists)
+#'
+#' @param string character vector to be translated
+#' @param defaultCollapse only used in case of unknown traces. For these, the
+#'  resulting elements are joined together into a single character vector which
+#'  can be split by this character
+#'
+#' @returns a data.frame
+#'
+#' @examples
+#' info <- "D:/MassHunter/Data/Ben/Data0001.d, +ESI TIC Scan Frag=125.0V Data0001.d "
+#' peakListInfo.AgilentExport(info)
+#' info <- "D:/MassHunter/Data/Ben/Data0001.d, +ESI EIC(591.2807) Scan Frag=125.0V Data0001.d "
+#' peakListInfo.AgilentExport(info)
+#'
+#' @export
+peakListInfo.AgilentExport <- function(string, defaultCollapse = ";"){
+  string <- unlist(stringr::str_split(string, pattern = ","))
+  result <- chromatogramInfo.AgilentExport(string[2], defaultCollapse = defaultCollapse)
+  result$location <-string[1]
+  return(result)
+}
+
+#' @title readPeaklist.AgilentExport.memory
+#'
+#' @description function factory that returns a function that takes the data
+#'  from a character vector which is in the format of an Agilent peaklist
+#'  export (single or multiple peaklist(s)) and returns list of lists with
+#'  two elements: data (data.frame) and info (list)
+#'
+#' @note a peaklist = the result from the integration of traces/chromatograms by
+#'  the Agilent Masshunter software
+#'
+#' @param textLines character vector of the data in Agilent peaklist export
+#'  format: first line = description and the rest of the lines is the integration
+#'  data. Rownumbers are ignored.
+#' @param sep defines the separator for the peaklist data. Default is ','
+#' @param startsString character vector that defines which lines in the file
+#'
+#' @returns function that generates a list of two objects: first element (info)
+#'  is data.frame (with info) and second (data) is a list of data.frame's
+#'
+#' @examples
+#' demoFile <- fs::path_package("extdata", "Data0001_MS.CSV", package = "MS.Analysis")
+#' result <- readLines(demoFile)
+#' result <- readPeaklist.AgilentExport.memory(result, startsString = "Data0001")()
+#' result$info
+#' result$data[[1]]
+#' result$data[[3]]
+#' @export
+readPeaklist.AgilentExport.memory <- function(textLines, sep = ",", startsString){
+  force(textLines)
+  force(sep)
+  force(startsString)
+  function(...){
+    textLines <- purrr::map_chr(textLines, ~stringr::str_replace_all(.x, pattern = "\\\"", replacement = ""))
+    textLines <- purrr::map_chr(textLines, ~stringr::str_replace_all(.x, pattern = "\\\\", replacement = "/"))
+    starts <- which(purrr::map_lgl(textLines, ~nrow(stringr::str_locate_all(.x, pattern = startsString)[[1]]) == 2))
+    results <- purrr::map_df(textLines[starts], ~peakListInfo.AgilentExport(.x))
+    results$start <- starts+1
+    results$end <- c(starts[-1]-1, length(textLines))
+    pkList <- list()
+    for (counter in 1:nrow(results)){
+      pkList[[counter]] <- stringr::str_replace_all(textLines[results$start[counter]:results$end[counter]],
+                                           pattern = paste(c(".*",startsString,"\\s,"), collapse = ""),
+                                           replacement = "")
+      if (length(pkList[[counter]]) == 1){
+        pkList[[counter]] <- NA
+      } else {
+        pkList[[counter]][1] <- stringr::str_remove_all(
+          stringr::str_replace_all(pkList[[counter]][1],
+                                   pattern = "%",
+                                   replacement = "Perc"),
+          pattern = "\\s")
+        pkList[[counter]] <- utils::read.csv(text = pkList[[counter]],
+                                             sep = ",",
+                                             header = T)
+      }
+    }
+    return(list(info = results, data = pkList))
+  }
+}

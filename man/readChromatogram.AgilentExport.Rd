@@ -59,9 +59,9 @@ result <- readChromatogram.AgilentExport(demoFile,
  translateComment = chromatogramInfo.AgilentExport)()
 length(result)
 purrr::map_df(result, ~as.data.frame(.x$info))
-result[[2]]$data |> head()
-plot(result[[2]]$data, type = "l")
 result[[3]]$data |> head()
 plot(result[[3]]$data, type = "l")
+result[[5]]$data |> head()
+plot(result[[5]]$data, type = "l")
 
 }
