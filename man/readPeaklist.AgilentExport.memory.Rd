@@ -30,7 +30,7 @@ a peaklist = the result from the integration of traces/chromatograms by
 the Agilent Masshunter software
 }
 \examples{
-demoFile <- fs::path_package("extdata", "Data0001_MS.CSV", package = "MS.Analysis")
+demoFile <- fs::path_package("extdata", "Data0001_MS.csv", package = "MS.Analysis")
 result <- readLines(demoFile)
 result <- readPeaklist.AgilentExport.memory(result, startsString = "Data0001")()
 result$info

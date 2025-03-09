@@ -254,7 +254,7 @@ peakListInfo.AgilentExport <- function(string, defaultCollapse = ";"){
 #'  is data.frame (with info) and second (data) is a list of data.frame's
 #'
 #' @examples
-#' demoFile <- fs::path_package("extdata", "Data0001_MS.CSV", package = "MS.Analysis")
+#' demoFile <- fs::path_package("extdata", "Data0001_MS.csv", package = "MS.Analysis")
 #' result <- readLines(demoFile)
 #' result <- readPeaklist.AgilentExport.memory(result, startsString = "Data0001")()
 #' result$info

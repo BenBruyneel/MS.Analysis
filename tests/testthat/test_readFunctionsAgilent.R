@@ -135,7 +135,7 @@ test_that("peakListInfo.AgilentExport works", {
 })
 
 test_that("readPeaklist.AgilentExport.memory works", {
-  demoFile <- fs::path_package("extdata", "Data0001_MS.CSV", package = "MS.Analysis")
+  demoFile <- fs::path_package("extdata", "Data0001_MS.csv", package = "MS.Analysis")
   result <- readLines(demoFile)
   result <- readPeaklist.AgilentExport.memory(result, startsString = "Data0001")()
   expect_length(result, 2)
@@ -155,7 +155,7 @@ test_that("readPeaklist.AgilentExport.memory works", {
   expect_equal(as.character(sum(result$data[[5]]$End)), "61.418")
   expect_equal(as.character(sum(result$data[[5]]$Area)), "808533.02")
   expect_equal(as.character(sum(result$data[[5]]$Height)), "151619")
-  demoFile <- fs::path_package("extdata", "Data0001_UV.CSV", package = "MS.Analysis")
+  demoFile <- fs::path_package("extdata", "Data0001_UV.csv", package = "MS.Analysis")
   result <- readLines(demoFile)
   result <- readPeaklist.AgilentExport.memory(result, startsString = "Data0001")()
   expect_length(result, 2)
