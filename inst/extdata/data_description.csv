@@ -1,7 +1,5 @@
 filename, source, comment
-ExcelExp_Long.XLS, "-" , "Testfile Thermo Scientific processing output"
-ExcelExp_Short.XLS, "-" , "Testfile Thermo Scientific processing output (short version)"
-reserpine07.RAW, "Thermo Scientific", "One of the example files delivered with installation of Xcalibur software"
-Data0001.CSV, Agilent, "Example Agilent chromatogram file export"
-Data0001_MS.csv, Agilent, "Example Agilent peaklist file export"
-Data0001_UV.csv, Agilent, "Example Agilent peaklist file export"
+"spec1.csv","Experiment Hub", "Same as used in Rawrr package"
+"spec2.csv","unknown", "ProFile Spectrum"
+"chrom1.csv","Experiment Hub", "Same as used in Rawrr package"
+"Data0001_MS.csv", "Agilent", "Example Agilent peaklist file export"
