@@ -1,7 +1,7 @@
 Package: MS.Analysis
 Title: Analysis of mass spectrometry data
 Description: Provides a framework for the analysis of mass spectrometry (and other types of) data.
-Version: 0.6.0000
+Version: 0.6.1000
 Author: Ben Bruyneel <benbruyneel@gmail.com>
 Maintainer: Ben Bruyneel <benbruyneel@gmail.com>
 License: GPL (>=3)

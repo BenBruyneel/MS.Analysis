@@ -519,6 +519,7 @@ annotation <- R6::R6Class("annotation",
                                   if (length(self$x) > 1){
                                     graphObject <- graphObject +
                                       ggplot2::annotate("path",x = self$x, y = ifelseProper(self$labelWhereAbsolute, self$labelWhere, self$labelWhere * maxY),
+                                                        linewidth = self$axisConnectWidth,
                                                         color = self$labelConnectColor,
                                                         alpha = self$labelConnectAlpha)
                                   }
