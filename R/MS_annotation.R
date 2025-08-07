@@ -561,11 +561,19 @@ annotation <- R6::R6Class("annotation",
                                     thelabelPos <-    ifelseProper(self$labelWhereAbsolute, self$labelWhere, self$labelWhere * maxY)
                                     theLabel <- self$labelX[-length(self$labelX)]
                                   }
-                                  rtdf <- data.frame(x = self$x,
-                                                     y = ifelseProper(self$labelWhereAbsolute, self$labelWhere, self$labelWhere * maxY),
-                                                     label = self$labelX,
-                                                     size = self$labelSize,
-                                                     color = self$labelColor)
+                                  if (!self$labelBetween){
+                                    rtdf <- data.frame(x = self$x,
+                                                       y = ifelseProper(self$labelWhereAbsolute, self$labelWhere, self$labelWhere * maxY),
+                                                       label = self$labelX,
+                                                       size = self$labelSize,
+                                                       color = self$labelColor)
+                                  } else {
+                                    rtdf <- data.frame(x = theLabelX,
+                                                       y = theLabelY,
+                                                       label = theLabel,
+                                                       size = self$labelSize,
+                                                       color = self$labelColor)
+                                  }
                                   for (counter in 1:nrow(rtdf)){
                                     rtdf$label[counter] <-  paste(c("<span style='font-size:",round(9*rtdf$size[counter]),
                                                                     "pt; color:",rtdf$color[counter],"'>",rtdf$label[counter],"</span>"), collapse = "")
@@ -782,106 +790,106 @@ annotation <- R6::R6Class("annotation",
 #'
 #' @export
 spectrumAnnotation <- R6::R6Class("spectrumAnnotation",
-                              inherit = annotation,
-                              public = list(
-                                #' @description Initializes an spectrum annotation object
-                                #'
-                                #' @param annotationName set the internal name of the object
-                                #' @param nameX sets the name of the x-axis variable (eg m/z or retention time)
-                                #' @param nameY sets the name of the y-axis variable (eg intensity)
-                                #' @param mzs m/z-values (location on x-axis) for the labels
-                                #' @param labels the labels to be used for the annotation. Should have same length
-                                #'  as argument mzs. If NA, then it will be as.character(mzs)
-                                #' @param levelWhere y-axis height where axis labels are to be placed. Expressed as
-                                #'  a fraction of the y-axis maximum (default 0.9)
-                                #' @param levelWhereAbsolute labelWhere positions are absolute? (default: FALSE)
-                                #' @param labelColor sets the color of the labels
-                                #' @param labelSize sets the size of the labels
-                                #' @param labelAngle sets the angle of display of the labels
-                                #' @param labelConnect logical vector which defines if the labels are connected
-                                #'  horizontally ('along' the x-axis)
-                                #' @param labelConnectColor sets the color of the connection lines between the labels
-                                #' @param labelConnectAlpha sets the alpha of the connection lines between the labels
-                                #' @param labelBetween logical vector. If TRUE then labels are placed between connection points
-                                #' @param labelNudgeY numeric vector, to have the labels drawn a little higher or lower in the final graph
-                                #' @param axisConnect specifies if the labels should have axis connect lines
-                                #' @param axisConnectColor sets the color of the axis connector line(s)
-                                #' @param axisConnectAlpha sets the alpha of the axis connector line(s)
-                                #' @param axisConnectWidth sets the width of the axis connector line(s)
-                                #' @param axisConnectLevel defines to where (how far down) the axisConnect lines should reach
-                                #' @param axisConnectWhere this is how high above the connect, is relative to max Y-axis.
-                                #'  To place labels close to their peaks, this option should only be set/changed by
-                                #'  annotation field labelType
-                                #' @param axisConnectType at this moment can be 1,2 or 3. 1 means connect all the way down,
-                                #'  2 means up till axisConnectLevel above int of m/z. 3 = overrides all axisConnect Settings,
-                                #'  labels put at axisConnectLevel above int of m/z and axisConnect lines
-                                #'
-                                #' @returns a new spectrum annotation object
-                                #'
-                                #' @export
-                                initialize = function(annotationName = NA,
-                                                      nameX = "mz", nameY = "intensity",
-                                                      mzs = NA, labels = NA,
-                                                      levelWhere = 0.9, levelWhereAbsolute = FALSE,
-                                                      labelColor = "red", labelSize= 1, labelAngle = 30,
-                                                      labelConnect = TRUE, labelConnectColor = "red", labelConnectAlpha = 0.25,
-                                                      labelBetween = FALSE, labelNudgeY = 0,
-                                                      axisConnect = TRUE, axisConnectColor = "red", axisConnectAlpha = 0.25,
-                                                      axisConnectWidth = 0.5, axisConnectLevel = NA, axisConnectWhere = 0.05, axisConnectType = 1){
-                                  super$initialize(annotationName = annotationName,
-                                                   nameX = nameX, nameY = nameY,
-                                                   x = mzs, labelX = labels,
-                                                   labelWhere = levelWhere, labelWhereAbsolute = levelWhereAbsolute,
-                                                   labelColor = labelColor, labelSize = labelSize, labelAngle = labelAngle,
-                                                   labelConnect = labelConnect, labelConnectColor = labelConnectColor, labelConnectAlpha = labelConnectAlpha,
-                                                   labelBetween = labelBetween, labelNudgeY = labelNudgeY,
-                                                   axisConnect = axisConnect, axisConnectColor = axisConnectColor, axisConnectAlpha = axisConnectAlpha,
-                                                   axisConnectWidth = axisConnectWidth, axisConnectLevel = axisConnectLevel, axisConnectWhere = axisConnectWhere,
-                                                   axisConnectType = axisConnectType)
-                                  invisible()
-                                },
-                                #' @description
-                                #'  checks whether the m/z coordinates have 'sufficient' intensity labels
-                                #'  if not, then the label is dropped from the object
-                                #'
-                                #' @param spectrum data.frame with at least an m/z column and an intensity column
-                                #' @param toleranceLow left tolerance (m/z)
-                                #' @param toleranceHigh right tolerance (m/z)
-                                #' @param relativeCutOff is the intensity CutOff reletive (fraction of maximum intensity)
-                                #' @param intensityCutOff y-axis (intensity) cut off y-axis value (intensity) should be above
-                                #'
-                                #' @returns the object itself (invisible)
-                                #'
-                                #' @export
-                                check = function(spectrum,
-                                                 toleranceLow = 0.1, toleranceHigh = toleranceLow,
-                                                 relativeCutOff = TRUE, intensityCutOff = ifelse(relativeCutOff, 0.001, 10)){
-                                  super$check(dataframe = spectrum,
-                                              toleranceX = c(toleranceLow, toleranceHigh),
-                                              relativeCutOff = relativeCutOff, yCutOff = intensityCutOff)
-                                  invisible()
-                                }
-                              ),
-                              active = list(
-                                #' @field mz gets/sets the x values of the labels
-                                #' @note use with care, no safeguards (yet)
-                                mz = function(value){
-                                  if (missing(value)){
-                                    return(self$x)
-                                  } else {
-                                    self$x <- value
-                                  }
-                                },
-                                #' @field intensity gets/sets the y-positions in the object
-                                #' @note use with care, no safeguards (yet)
-                                intensity = function(value){
-                                  if (missing(value)){
-                                    return(self$axisConnectLevel)
-                                  } else {
-                                    self$axisConnectLevel <- value
-                                  }
-                                }
-                              )
+                                  inherit = annotation,
+                                  public = list(
+                                    #' @description Initializes an spectrum annotation object
+                                    #'
+                                    #' @param annotationName set the internal name of the object
+                                    #' @param nameX sets the name of the x-axis variable (eg m/z or retention time)
+                                    #' @param nameY sets the name of the y-axis variable (eg intensity)
+                                    #' @param mzs m/z-values (location on x-axis) for the labels
+                                    #' @param labels the labels to be used for the annotation. Should have same length
+                                    #'  as argument mzs. If NA, then it will be as.character(mzs)
+                                    #' @param levelWhere y-axis height where axis labels are to be placed. Expressed as
+                                    #'  a fraction of the y-axis maximum (default 0.9)
+                                    #' @param levelWhereAbsolute labelWhere positions are absolute? (default: FALSE)
+                                    #' @param labelColor sets the color of the labels
+                                    #' @param labelSize sets the size of the labels
+                                    #' @param labelAngle sets the angle of display of the labels
+                                    #' @param labelConnect logical vector which defines if the labels are connected
+                                    #'  horizontally ('along' the x-axis)
+                                    #' @param labelConnectColor sets the color of the connection lines between the labels
+                                    #' @param labelConnectAlpha sets the alpha of the connection lines between the labels
+                                    #' @param labelBetween logical vector. If TRUE then labels are placed between connection points
+                                    #' @param labelNudgeY numeric vector, to have the labels drawn a little higher or lower in the final graph
+                                    #' @param axisConnect specifies if the labels should have axis connect lines
+                                    #' @param axisConnectColor sets the color of the axis connector line(s)
+                                    #' @param axisConnectAlpha sets the alpha of the axis connector line(s)
+                                    #' @param axisConnectWidth sets the width of the axis connector line(s)
+                                    #' @param axisConnectLevel defines to where (how far down) the axisConnect lines should reach
+                                    #' @param axisConnectWhere this is how high above the connect, is relative to max Y-axis.
+                                    #'  To place labels close to their peaks, this option should only be set/changed by
+                                    #'  annotation field labelType
+                                    #' @param axisConnectType at this moment can be 1,2 or 3. 1 means connect all the way down,
+                                    #'  2 means up till axisConnectLevel above int of m/z. 3 = overrides all axisConnect Settings,
+                                    #'  labels put at axisConnectLevel above int of m/z and axisConnect lines
+                                    #'
+                                    #' @returns a new spectrum annotation object
+                                    #'
+                                    #' @export
+                                    initialize = function(annotationName = NA,
+                                                          nameX = "mz", nameY = "intensity",
+                                                          mzs = NA, labels = NA,
+                                                          levelWhere = 0.9, levelWhereAbsolute = FALSE,
+                                                          labelColor = "red", labelSize= 1, labelAngle = 30,
+                                                          labelConnect = TRUE, labelConnectColor = "red", labelConnectAlpha = 0.25,
+                                                          labelBetween = FALSE, labelNudgeY = 0,
+                                                          axisConnect = TRUE, axisConnectColor = "red", axisConnectAlpha = 0.25,
+                                                          axisConnectWidth = 0.5, axisConnectLevel = NA, axisConnectWhere = 0.05, axisConnectType = 1){
+                                      super$initialize(annotationName = annotationName,
+                                                       nameX = nameX, nameY = nameY,
+                                                       x = mzs, labelX = labels,
+                                                       labelWhere = levelWhere, labelWhereAbsolute = levelWhereAbsolute,
+                                                       labelColor = labelColor, labelSize = labelSize, labelAngle = labelAngle,
+                                                       labelConnect = labelConnect, labelConnectColor = labelConnectColor, labelConnectAlpha = labelConnectAlpha,
+                                                       labelBetween = labelBetween, labelNudgeY = labelNudgeY,
+                                                       axisConnect = axisConnect, axisConnectColor = axisConnectColor, axisConnectAlpha = axisConnectAlpha,
+                                                       axisConnectWidth = axisConnectWidth, axisConnectLevel = axisConnectLevel, axisConnectWhere = axisConnectWhere,
+                                                       axisConnectType = axisConnectType)
+                                      invisible()
+                                    },
+                                    #' @description
+                                    #'  checks whether the m/z coordinates have 'sufficient' intensity labels
+                                    #'  if not, then the label is dropped from the object
+                                    #'
+                                    #' @param spectrum data.frame with at least an m/z column and an intensity column
+                                    #' @param toleranceLow left tolerance (m/z)
+                                    #' @param toleranceHigh right tolerance (m/z)
+                                    #' @param relativeCutOff is the intensity CutOff reletive (fraction of maximum intensity)
+                                    #' @param intensityCutOff y-axis (intensity) cut off y-axis value (intensity) should be above
+                                    #'
+                                    #' @returns the object itself (invisible)
+                                    #'
+                                    #' @export
+                                    check = function(spectrum,
+                                                     toleranceLow = 0.1, toleranceHigh = toleranceLow,
+                                                     relativeCutOff = TRUE, intensityCutOff = ifelse(relativeCutOff, 0.001, 10)){
+                                      super$check(dataframe = spectrum,
+                                                  toleranceX = c(toleranceLow, toleranceHigh),
+                                                  relativeCutOff = relativeCutOff, yCutOff = intensityCutOff)
+                                      invisible()
+                                    }
+                                  ),
+                                  active = list(
+                                    #' @field mz gets/sets the x values of the labels
+                                    #' @note use with care, no safeguards (yet)
+                                    mz = function(value){
+                                      if (missing(value)){
+                                        return(self$x)
+                                      } else {
+                                        self$x <- value
+                                      }
+                                    },
+                                    #' @field intensity gets/sets the y-positions in the object
+                                    #' @note use with care, no safeguards (yet)
+                                    intensity = function(value){
+                                      if (missing(value)){
+                                        return(self$axisConnectLevel)
+                                      } else {
+                                        self$axisConnectLevel <- value
+                                      }
+                                    }
+                                  )
 )
 
 # ---- Chromatogram Annotation ----
@@ -918,127 +926,127 @@ spectrumAnnotation <- R6::R6Class("spectrumAnnotation",
 #'
 #' @export
 chromatogramAnnotation <- R6::R6Class("chromatogramAnnotation",
-                                  inherit = annotation,
-                                  public = list(
-                                    #' @description Initializes an spectrum annotation object
-                                    #'
-                                    #' @param annotationName set the internal name of the object
-                                    #' @param nameX sets the name of the x-axis variable (eg m/z or retention time)
-                                    #' @param nameY sets the name of the y-axis variable (eg intensity)
-                                    #' @param rts rt-values (retention time, location on x-axis) for the labels
-                                    #' @param labels the labels to be used for the annotation. Should have same length
-                                    #'  as argument rts. If NA, then it will be as.character(rts)
-                                    #' @param levelWhere y-axis height where axis labels are to be placed. Expressed as
-                                    #'  a fraction of the y-axis maximum (default 0.9)
-                                    #' @param levelWhereAbsolute labelWhere positions are absolute? (default: FALSE)
-                                    #' @param labelColor sets the color of the labels
-                                    #' @param labelSize sets the size of the labels
-                                    #' @param labelAngle sets the angle of display of the labels
-                                    #' @param labelConnect logical vector which defines if the labels are connected
-                                    #'  horizontally ('along' the x-axis)
-                                    #' @param labelConnectColor sets the color of the connection lines between the labels
-                                    #' @param labelConnectAlpha sets the alpha of the connection lines between the labels
-                                    #' @param labelBetween logical vector. If TRUE then labels are placed between connection points
-                                    #' @param labelNudgeY numeric vector, to have the labels drawn a little higher or lower in the final graph
-                                    #' @param axisConnect specifies if the labels should have axis connect lines
-                                    #' @param axisConnectColor sets the color of the axis connector line(s)
-                                    #' @param axisConnectAlpha sets the alpha of the axis connector line(s)
-                                    #' @param axisConnectWidth sets the width of the axis connector line(s)
-                                    #' @param axisConnectLevel defines to where (how far down) the axisConnect lines should reach
-                                    #' @param axisConnectWhere this is how high above the connect, is relative to max Y-axis.
-                                    #'  To place labels close to their peaks, this option should only be set/changed by
-                                    #'  annotation field labelType
-                                    #' @param axisConnectType at this moment can be 1,2 or 3. 1 means connect all the way down,
-                                    #'  2 means up till axisConnectLevel above int of m/z. 3 = overrides all axisConnect Settings,
-                                    #'  labels put at axisConnectLevel above int of m/z and axisConnect lines
-                                    #'
-                                    #' @return a new spectrum annotation object
-                                    initialize = function(annotationName = NA,
-                                                          nameX = "rt", nameY = "intensity",
-                                                          rts = NA, labels = NA,
-                                                          levelWhere = 0.9, levelWhereAbsolute = FALSE,
-                                                          labelColor = "red",
-                                                          labelSize= 1, labelAngle = 30,
-                                                          labelConnect = FALSE, labelConnectColor = "red", labelConnectAlpha = 0.25,
-                                                          labelBetween = FALSE, labelNudgeY = TRUE,
-                                                          axisConnect = TRUE, axisConnectColor = "red", axisConnectAlpha = 0.25,
-                                                          axisConnectWidth = 0.5, axisConnectLevel = NA, axisConnectWhere = 0.05, axisConnectType = 1){
-                                      super$initialize(annotationName = annotationName,
-                                                       nameX = nameX, nameY = nameY,
-                                                       x = rts, labelX = labels,
-                                                       labelWhere = levelWhere, labelColor = labelColor,
-                                                       labelSize = labelSize, labelAngle = labelAngle,
-                                                       labelConnect = labelConnect, labelConnectColor = labelConnectColor, labelConnectAlpha = labelConnectAlpha,
-                                                       labelBetween = labelBetween, labelNudgeY = labelNudgeY,
-                                                       axisConnect = axisConnect, axisConnectColor = axisConnectColor, axisConnectAlpha = axisConnectAlpha,
-                                                       axisConnectWidth = axisConnectWidth, axisConnectLevel = axisConnectLevel, axisConnectWhere = axisConnectWhere,
-                                                       axisConnectType = axisConnectType)
-                                      invisible()
-                                    },
-                                    #' @description
-                                    #'  checks whether the m/z coordinates have 'sufficient' intensity labels
-                                    #'  if not, then the label is dropped from the object
-                                    #'
-                                    #' @param chromatogram data.frame with at least an m/z column and an intensity column
-                                    #' @param toleranceLow left tolerance (m/z)
-                                    #' @param toleranceHigh right tolerance (m/z)
-                                    #' @param relativeCutOff is the intensity CutOff reletive (fraction of maximum intensity)
-                                    #' @param intensityCutOff y-axis (intensity) cut off y-axis value (intensity) should be above
-                                    #'
-                                    #' @returns the object itself (invisible)
-                                    #'
-                                    #' @export
-                                    check = function(chromatogram,
-                                                     toleranceLow = 0.1, toleranceHigh = toleranceLow,
-                                                     relativeCutOff = TRUE, intensityCutOff = ifelse(relativeCutOff, 0.001, 10)){
-                                      super$check(dataframe = chromatogram,
-                                                  toleranceX = c(toleranceLow, toleranceHigh),
-                                                  relativeCutOff = relativeCutOff, yCutOff = intensityCutOff)
-                                      invisible()
-                                    }
-                                  ),
-                                  active = list(
-                                    #' @field rt gets/sets the x values of the labels
-                                    rt = function(value){
-                                      if (missing(value)){
-                                        return(self$x)
-                                      } else {
-                                        self$x <- value
-                                      }
-                                    },
-                                    #' @field intensity gets/sets the y-positions in the object
-                                    #' @note use with care, no safeguards (yet)
-                                    intensity = function(value){
-                                      if (missing(value)){
-                                        return(self$axisConnectLevel)
-                                      } else {
-                                        self$axisConnectLevel <- value
-                                      }
-                                    },
-                                    #' @field labelType gets/sets the axisConnectType
-                                    #'  When set it takes care of axisConnect & labelConnect at the same time
-                                    labelType = function(value){
-                                      if (missing(value)){
-                                        return(self$axisConnectType)
-                                      } else {
-                                        if (value > 1){
-                                          if (!identical(self$axisConnectLevel, NA)){
-                                            self$axisConnectType <- value
-                                            if (value > 2){
-                                              self$axisConnect <- FALSE
-                                              self$labelConnect <- FALSE
+                                      inherit = annotation,
+                                      public = list(
+                                        #' @description Initializes an spectrum annotation object
+                                        #'
+                                        #' @param annotationName set the internal name of the object
+                                        #' @param nameX sets the name of the x-axis variable (eg m/z or retention time)
+                                        #' @param nameY sets the name of the y-axis variable (eg intensity)
+                                        #' @param rts rt-values (retention time, location on x-axis) for the labels
+                                        #' @param labels the labels to be used for the annotation. Should have same length
+                                        #'  as argument rts. If NA, then it will be as.character(rts)
+                                        #' @param levelWhere y-axis height where axis labels are to be placed. Expressed as
+                                        #'  a fraction of the y-axis maximum (default 0.9)
+                                        #' @param levelWhereAbsolute labelWhere positions are absolute? (default: FALSE)
+                                        #' @param labelColor sets the color of the labels
+                                        #' @param labelSize sets the size of the labels
+                                        #' @param labelAngle sets the angle of display of the labels
+                                        #' @param labelConnect logical vector which defines if the labels are connected
+                                        #'  horizontally ('along' the x-axis)
+                                        #' @param labelConnectColor sets the color of the connection lines between the labels
+                                        #' @param labelConnectAlpha sets the alpha of the connection lines between the labels
+                                        #' @param labelBetween logical vector. If TRUE then labels are placed between connection points
+                                        #' @param labelNudgeY numeric vector, to have the labels drawn a little higher or lower in the final graph
+                                        #' @param axisConnect specifies if the labels should have axis connect lines
+                                        #' @param axisConnectColor sets the color of the axis connector line(s)
+                                        #' @param axisConnectAlpha sets the alpha of the axis connector line(s)
+                                        #' @param axisConnectWidth sets the width of the axis connector line(s)
+                                        #' @param axisConnectLevel defines to where (how far down) the axisConnect lines should reach
+                                        #' @param axisConnectWhere this is how high above the connect, is relative to max Y-axis.
+                                        #'  To place labels close to their peaks, this option should only be set/changed by
+                                        #'  annotation field labelType
+                                        #' @param axisConnectType at this moment can be 1,2 or 3. 1 means connect all the way down,
+                                        #'  2 means up till axisConnectLevel above int of m/z. 3 = overrides all axisConnect Settings,
+                                        #'  labels put at axisConnectLevel above int of m/z and axisConnect lines
+                                        #'
+                                        #' @return a new spectrum annotation object
+                                        initialize = function(annotationName = NA,
+                                                              nameX = "rt", nameY = "intensity",
+                                                              rts = NA, labels = NA,
+                                                              levelWhere = 0.9, levelWhereAbsolute = FALSE,
+                                                              labelColor = "red",
+                                                              labelSize= 1, labelAngle = 30,
+                                                              labelConnect = FALSE, labelConnectColor = "red", labelConnectAlpha = 0.25,
+                                                              labelBetween = FALSE, labelNudgeY = TRUE,
+                                                              axisConnect = TRUE, axisConnectColor = "red", axisConnectAlpha = 0.25,
+                                                              axisConnectWidth = 0.5, axisConnectLevel = NA, axisConnectWhere = 0.05, axisConnectType = 1){
+                                          super$initialize(annotationName = annotationName,
+                                                           nameX = nameX, nameY = nameY,
+                                                           x = rts, labelX = labels,
+                                                           labelWhere = levelWhere, labelColor = labelColor,
+                                                           labelSize = labelSize, labelAngle = labelAngle,
+                                                           labelConnect = labelConnect, labelConnectColor = labelConnectColor, labelConnectAlpha = labelConnectAlpha,
+                                                           labelBetween = labelBetween, labelNudgeY = labelNudgeY,
+                                                           axisConnect = axisConnect, axisConnectColor = axisConnectColor, axisConnectAlpha = axisConnectAlpha,
+                                                           axisConnectWidth = axisConnectWidth, axisConnectLevel = axisConnectLevel, axisConnectWhere = axisConnectWhere,
+                                                           axisConnectType = axisConnectType)
+                                          invisible()
+                                        },
+                                        #' @description
+                                        #'  checks whether the m/z coordinates have 'sufficient' intensity labels
+                                        #'  if not, then the label is dropped from the object
+                                        #'
+                                        #' @param chromatogram data.frame with at least an m/z column and an intensity column
+                                        #' @param toleranceLow left tolerance (m/z)
+                                        #' @param toleranceHigh right tolerance (m/z)
+                                        #' @param relativeCutOff is the intensity CutOff reletive (fraction of maximum intensity)
+                                        #' @param intensityCutOff y-axis (intensity) cut off y-axis value (intensity) should be above
+                                        #'
+                                        #' @returns the object itself (invisible)
+                                        #'
+                                        #' @export
+                                        check = function(chromatogram,
+                                                         toleranceLow = 0.1, toleranceHigh = toleranceLow,
+                                                         relativeCutOff = TRUE, intensityCutOff = ifelse(relativeCutOff, 0.001, 10)){
+                                          super$check(dataframe = chromatogram,
+                                                      toleranceX = c(toleranceLow, toleranceHigh),
+                                                      relativeCutOff = relativeCutOff, yCutOff = intensityCutOff)
+                                          invisible()
+                                        }
+                                      ),
+                                      active = list(
+                                        #' @field rt gets/sets the x values of the labels
+                                        rt = function(value){
+                                          if (missing(value)){
+                                            return(self$x)
+                                          } else {
+                                            self$x <- value
+                                          }
+                                        },
+                                        #' @field intensity gets/sets the y-positions in the object
+                                        #' @note use with care, no safeguards (yet)
+                                        intensity = function(value){
+                                          if (missing(value)){
+                                            return(self$axisConnectLevel)
+                                          } else {
+                                            self$axisConnectLevel <- value
+                                          }
+                                        },
+                                        #' @field labelType gets/sets the axisConnectType
+                                        #'  When set it takes care of axisConnect & labelConnect at the same time
+                                        labelType = function(value){
+                                          if (missing(value)){
+                                            return(self$axisConnectType)
+                                          } else {
+                                            if (value > 1){
+                                              if (!identical(self$axisConnectLevel, NA)){
+                                                self$axisConnectType <- value
+                                                if (value > 2){
+                                                  self$axisConnect <- FALSE
+                                                  self$labelConnect <- FALSE
+                                                } else {
+                                                  self$axisConnect <- TRUE
+                                                }
+                                              } else {
+                                                warning("No axis connect level values, axis connect type was not changed.")
+                                              }
                                             } else {
+                                              self$axisConnectType <- value
                                               self$axisConnect <- TRUE
                                             }
-                                          } else {
-                                            warning("No axis connect level values, axis connect type was not changed.")
                                           }
-                                        } else {
-                                          self$axisConnectType <- value
-                                          self$axisConnect <- TRUE
                                         }
-                                      }
-                                    }
 
-                                  )
+                                      )
 )
