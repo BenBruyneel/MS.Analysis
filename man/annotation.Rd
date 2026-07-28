@@ -3,13 +3,6 @@
 \name{annotation}
 \alias{annotation}
 \title{annotation}
-\value{
-a new annotation object
-
-the object itself (invisible)
-
-ggplot object
-}
 \description{
 R6 Class base for dealing with annotations in graphs, originally intended for
 semi-automatic peptide spectrum annotation (y- & b-ions)
@@ -115,59 +108,59 @@ plotSpectrum(
 
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{nameX}}{character vector specifying the name of the x-axis variable (eg 'mz')}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{nameX}}{character vector specifying the name of the x-axis variable (eg 'mz')}
 
-\item{\code{nameY}}{character vector specifying the name of the y-axis variable (eg 'intensity')}
+    \item{\code{nameY}}{character vector specifying the name of the y-axis variable (eg 'intensity')}
 
-\item{\code{x}}{numeric vector of the x-values used for the annotation}
+    \item{\code{x}}{numeric vector of the x-values used for the annotation}
 
-\item{\code{labelX}}{character vector of the labels to be used for the annotation}
+    \item{\code{labelX}}{character vector of the labels to be used for the annotation}
 
-\item{\code{labelNumber}}{each label has a asscociated number 1..
+    \item{\code{labelNumber}}{each label has a asscociated number 1..
 When a label is removed, the number is also removed. This way we can keep track of
 which 'original' labels are still there after e.g. 'check'}
 
-\item{\code{labelWhere}}{numeric vector: position of the labels (essentially the y-values for the placement of the labels).
+    \item{\code{labelWhere}}{numeric vector: position of the labels (essentially the y-values for the placement of the labels).
 If labelWhereAbsolute = FALSE, then 1 = maximum y-axis}
 
-\item{\code{labelWhereAbsolute}}{logical vector: labelWhere positions are absolute?}
+    \item{\code{labelWhereAbsolute}}{logical vector: labelWhere positions are absolute?}
 
-\item{\code{labelColor}}{color of the label}
+    \item{\code{labelColor}}{color of the label}
 
-\item{\code{labelSize}}{size of the label}
+    \item{\code{labelSize}}{size of the label}
 
-\item{\code{labelAngle}}{angle (degrees) of display for the label}
+    \item{\code{labelAngle}}{angle (degrees) of display for the label}
 
-\item{\code{labelConnect}}{logical vector that specifies whether the labels should be
+    \item{\code{labelConnect}}{logical vector that specifies whether the labels should be
 'connected' with a line between them}
 
-\item{\code{labelConnectColor}}{color of the label connect line(s)}
+    \item{\code{labelConnectColor}}{color of the label connect line(s)}
 
-\item{\code{labelConnectAlpha}}{alpha of the label connect line(s)}
+    \item{\code{labelConnectAlpha}}{alpha of the label connect line(s)}
 
-\item{\code{labelBetween}}{logical vector, determines whether the labels should be put between the x-values (TRUE) or on the x-values (FALSE).
+    \item{\code{labelBetween}}{logical vector, determines whether the labels should be put between the x-values (TRUE) or on the x-values (FALSE).
 If TRUE then the first label is ignored and only the labels starting from 2 are used}
 
-\item{\code{labelNudgeY}}{amount with which to increase the labelWhere values. Can be used to up or down the label slightly when displaying}
+    \item{\code{labelNudgeY}}{amount with which to increase the labelWhere values. Can be used to up or down the label slightly when displaying}
 
-\item{\code{axisConnect}}{logical vector that specifies whether the label should be
+    \item{\code{axisConnect}}{logical vector that specifies whether the label should be
 (vertically) connected to the (x-)axis by a line}
 
-\item{\code{axisConnectColor}}{color of axis connector line}
+    \item{\code{axisConnectColor}}{color of axis connector line}
 
-\item{\code{axisConnectAlpha}}{alpha of the axis connector line}
+    \item{\code{axisConnectAlpha}}{alpha of the axis connector line}
 
-\item{\code{axisConnectWidth}}{linewidth of the axis connector line}
+    \item{\code{axisConnectWidth}}{linewidth of the axis connector line}
 
-\item{\code{axisConnectLevel}}{NA means connect to axis, if not NA then axisConnectType can be set
+    \item{\code{axisConnectLevel}}{NA means connect to axis, if not NA then axisConnectType can be set
 axisConnectLevel defines to where (how far down) the axisConnect lines should reach}
 
-\item{\code{axisConnectWhere}}{this is how high above the connect, is relative to max Y-axis. To place labels close to their peaks,
+    \item{\code{axisConnectWhere}}{this is how high above the connect, is relative to max Y-axis. To place labels close to their peaks,
 this option should only be set/changed by annotation field labelType}
 
-\item{\code{axisConnectType}}{if axisConnectLevel is:
+    \item{\code{axisConnectType}}{if axisConnectLevel is:
 1: means all the way down
 2: means up till axisConnectLevel above int of m/z
 3: overrides all axisConnect Settings, labels put at axisConnectLevel above int of m/z and axisConnect lines
@@ -175,57 +168,58 @@ are removed (2 & 3 only really work for 'checked') annotations. Since the axisCo
 and labelConnect 'work' together: always use the object's labelType field to change axisConnectType since
 it will 'take care' of all settings together. AxisConnectLevel is also influenced by the (public) check
 method (it attempts to place set the values above the m/z's found)}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{name}}{gets/sets the name of the object}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{name}}{gets/sets the name of the object}
 
-\item{\code{table}}{provides a data.frame of the x-axis values and labels
+    \item{\code{table}}{provides a data.frame of the x-axis values and labels
 (read only)}
 
-\item{\code{labelNr}}{returns the label numbers
+    \item{\code{labelNr}}{returns the label numbers
 (read only)}
 
-\item{\code{labels}}{gets/sets the labels in the object}
+    \item{\code{labels}}{gets/sets the labels in the object}
 
-\item{\code{y}}{gets/sets the y-positions in the object}
+    \item{\code{y}}{gets/sets the y-positions in the object}
 
-\item{\code{color}}{returns the axisConnectColor, labelColor and labelConnectColor as vector
+    \item{\code{color}}{returns the axisConnectColor, labelColor and labelConnectColor as vector
 can be set as single value or 3 element vector}
 
-\item{\code{labelType}}{gets/sets the axisConnectType
+    \item{\code{labelType}}{gets/sets the axisConnectType
 When set it takes care of axisConnect & labelConnect at the same time}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-annotation-new}{\code{annotation$new()}}
-\item \href{#method-annotation-print}{\code{annotation$print()}}
-\item \href{#method-annotation-check}{\code{annotation$check()}}
-\item \href{#method-annotation-draw}{\code{annotation$draw()}}
-\item \href{#method-annotation-clone}{\code{annotation$clone()}}
-}
+  \itemize{
+    \item \href{#method-annotation-initialize}{\code{annotation$new()}}
+    \item \href{#method-annotation-print}{\code{annotation$print()}}
+    \item \href{#method-annotation-check}{\code{annotation$check()}}
+    \item \href{#method-annotation-draw}{\code{annotation$draw()}}
+    \item \href{#method-annotation-clone}{\code{annotation$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-annotation-new"></a>}}
-\if{latex}{\out{\hypertarget{method-annotation-new}{}}}
-\subsection{Method \code{new()}}{
-internal function to get all the (public)
+\if{html}{\out{<a id="method-annotation-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-annotation-initialize}{}}}
+\subsection{\code{annotation$new()}}{
+  internal function to get all the (public)
 variables into a list (for saving purposes)
 
 
-internal function to set all the (public) variables
+  internal function to set all the (public) variables
 from a named list (for loading purposes)
 
 
-Initializes an annotation object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{annotation$new(
+  Initializes an annotation object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{annotation$new(
   annotationName = NA,
   nameX = NA,
   nameY = NA,
@@ -248,158 +242,145 @@ Initializes an annotation object
   axisConnectLevel = NA,
   axisConnectWhere = 0.05,
   axisConnectType = 1
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{annotationName}}{set the internal name of the object}
-
-\item{\code{nameX}}{sets the name of the x-axis variable (eg m/z or retention time)}
-
-\item{\code{nameY}}{sets the name of the y-axis variable (eg intensity)}
-
-\item{\code{x}}{x-values (location on x-axis) for the labels}
-
-\item{\code{labelX}}{the labels to be used for the annotation. Should have same length
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{annotationName}}{set the internal name of the object}
+      \item{\code{nameX}}{sets the name of the x-axis variable (eg m/z or retention time)}
+      \item{\code{nameY}}{sets the name of the y-axis variable (eg intensity)}
+      \item{\code{x}}{x-values (location on x-axis) for the labels}
+      \item{\code{labelX}}{the labels to be used for the annotation. Should have same length
 as argument 'x'. If NA, then it will be as.character(x)}
-
-\item{\code{labelWhere}}{y-axis height where axis labels are to be placed. Expressed as
+      \item{\code{labelWhere}}{y-axis height where axis labels are to be placed. Expressed as
 a fraction of the y-axis maximum (default 0.9)}
-
-\item{\code{labelWhereAbsolute}}{labelWhere positions are absolute? (default: FALSE)}
-
-\item{\code{labelColor}}{sets the color of the labels}
-
-\item{\code{labelSize}}{sets the size of the labels}
-
-\item{\code{labelAngle}}{sets the angle of display of the labels}
-
-\item{\code{labelConnect}}{logical vector which defines if the labels are connected
+      \item{\code{labelWhereAbsolute}}{labelWhere positions are absolute? (default: FALSE)}
+      \item{\code{labelColor}}{sets the color of the labels}
+      \item{\code{labelSize}}{sets the size of the labels}
+      \item{\code{labelAngle}}{sets the angle of display of the labels}
+      \item{\code{labelConnect}}{logical vector which defines if the labels are connected
 horizontally ('along' the x-axis)}
-
-\item{\code{labelConnectColor}}{sets the color of the connection lines between the labels}
-
-\item{\code{labelConnectAlpha}}{sets the alpha of the connection lines between the labels}
-
-\item{\code{labelBetween}}{logical vector. If TRUE then labels are placed between connection points}
-
-\item{\code{labelNudgeY}}{numeric vector, to have the labels drawn a little higher or lower in the final graph}
-
-\item{\code{axisConnect}}{specifies if the labels should have axis connect lines}
-
-\item{\code{axisConnectColor}}{sets the color of the axis connector line(s)}
-
-\item{\code{axisConnectAlpha}}{sets the alpha of the axis connector line(s)}
-
-\item{\code{axisConnectWidth}}{sets the width of the axis connector line(s)}
-
-\item{\code{axisConnectLevel}}{defines to where (how far down) the axisConnect lines should reach}
-
-\item{\code{axisConnectWhere}}{this is how high above the connect, is relative to max Y-axis.
+      \item{\code{labelConnectColor}}{sets the color of the connection lines between the labels}
+      \item{\code{labelConnectAlpha}}{sets the alpha of the connection lines between the labels}
+      \item{\code{labelBetween}}{logical vector. If TRUE then labels are placed between connection points}
+      \item{\code{labelNudgeY}}{numeric vector, to have the labels drawn a little higher or lower in the final graph}
+      \item{\code{axisConnect}}{specifies if the labels should have axis connect lines}
+      \item{\code{axisConnectColor}}{sets the color of the axis connector line(s)}
+      \item{\code{axisConnectAlpha}}{sets the alpha of the axis connector line(s)}
+      \item{\code{axisConnectWidth}}{sets the width of the axis connector line(s)}
+      \item{\code{axisConnectLevel}}{defines to where (how far down) the axisConnect lines should reach}
+      \item{\code{axisConnectWhere}}{this is how high above the connect, is relative to max Y-axis.
 To place labels close to their peaks, this option should only be set/changed by
 annotation field labelType}
-
-\item{\code{axisConnectType}}{at this moment can be 1,2 or 3. 1 means connect all the way down,
+      \item{\code{axisConnectType}}{at this moment can be 1,2 or 3. 1 means connect all the way down,
 2 means up till axisConnectLevel above int of m/z. 3 = overrides all axisConnect Settings,
 labels put at axisConnectLevel above int of m/z and axisConnect lines}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a named list
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-a named list
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-annotation-print"></a>}}
 \if{latex}{\out{\hypertarget{method-annotation-print}{}}}
-\subsection{Method \code{print()}}{
-For printing purposes: prints the name of the annotation (if not NA)
+\subsection{\code{annotation$print()}}{
+  For printing purposes: prints the name of the annotation (if not NA)
 and a table of the labels
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{annotation$print()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{annotation$print()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-annotation-check"></a>}}
 \if{latex}{\out{\hypertarget{method-annotation-check}{}}}
-\subsection{Method \code{check()}}{
-checks whether the x-axis coordinates have 'sufficient' y-value (intensity) labels
+\subsection{\code{annotation$check()}}{
+  checks whether the x-axis coordinates have 'sufficient' y-value (intensity) labels
 if not, then the label is dropped from the object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{annotation$check(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{annotation$check(
   dataframe = NULL,
   toleranceX = c(0.1, 0.1),
   relativeCutOff = TRUE,
   yCutOff = ifelse(relativeCutOff, 0.001, 10)
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{dataframe}}{data.frame with at least the x-column (nameX) and y-column (nameY)}
+      \item{\code{toleranceX}}{two element numeric vecto: x-axis left tolerance (m/z) and right tolerance (mz)}
+      \item{\code{relativeCutOff}}{is the yCutOff relative (fraction of maximum y-value (intensity))}
+      \item{\code{yCutOff}}{y-axis cut off. Y-axis value (intensity) should be above}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    the object itself (invisible)
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dataframe}}{data.frame with at least the x-column (nameX) and y-column (nameY)}
-
-\item{\code{toleranceX}}{two element numeric vecto: x-axis left tolerance (m/z) and right tolerance (mz)}
-
-\item{\code{relativeCutOff}}{is the yCutOff relative (fraction of maximum y-value (intensity))}
-
-\item{\code{yCutOff}}{y-axis cut off. Y-axis value (intensity) should be above}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-annotation-draw"></a>}}
 \if{latex}{\out{\hypertarget{method-annotation-draw}{}}}
-\subsection{Method \code{draw()}}{
-Adds the annotation graphics to a ggplot object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{annotation$draw(
+\subsection{\code{annotation$draw()}}{
+  Adds the annotation graphics to a ggplot object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{annotation$draw(
   graphObject,
   minY = 0,
   maxY = NA,
   yMax = NA,
   intensityPercentage = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{graphObject}}{ggplot object to add the annotation to, easiest if it's the output
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{graphObject}}{ggplot object to add the annotation to, easiest if it's the output
 of plotSpectrum or plotChromatogram}
-
-\item{\code{minY}}{minimum intensity value for the ggplot object}
-
-\item{\code{maxY}}{maximum intensity value for the ggplot object}
-
-\item{\code{yMax}}{when working with percentage y-scales, this argument is the original
+      \item{\code{minY}}{minimum intensity value for the ggplot object}
+      \item{\code{maxY}}{maximum intensity value for the ggplot object}
+      \item{\code{yMax}}{when working with percentage y-scales, this argument is the original
 intensity value of the maximum y-value (not percentage)}
-
-\item{\code{intensityPercentage}}{Whether the intensity axis is displayed in percentages
+      \item{\code{intensityPercentage}}{Whether the intensity axis is displayed in percentages
 (default FALSE)}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    ggplot object
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-annotation-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-annotation-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{annotation$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{annotation$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{annotation$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

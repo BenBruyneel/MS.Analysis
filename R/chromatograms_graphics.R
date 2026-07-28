@@ -280,7 +280,8 @@ plotChromatogram <- function(chromatogram,
 #'  intensities (FALSE) or only the intensities of m/z's which fall within the
 #'  rtLimits (TRUE, default)
 #' @param intensityPercentage Whether to display the intensity axis in percentages
-#'  (default FALSE)
+#'  (default FALSE). Note: a 'side' effect is that all intensities are normalized
+#'  per chromatogram
 #' @param rtLabelFormat defines the format of the rt (x) axis labels.
 #'  See eg \link[MS.Analysis]{formatDigits}. Default is \link[ggplot2]{waiver}
 #'  which ensures 'standard' formatting
@@ -453,7 +454,11 @@ plotChromatogramOverlay <- function(chromatogramList,
   if (!is.null(intensityLimits)){
     g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = intensityLimits, labels = intensityLabelFormat)
   } else {
-    g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,maxY), labels = intensityLabelFormat)
+    if (intensityPercentage){
+      g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,100*(1+incrScaleIntensity)), labels = intensityLabelFormat)
+    } else {
+      g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,maxY), labels = intensityLabelFormat)
+    }
   }
   if (!is.null(annotateRt)){
     for (i in 1:length(annotateRt)){

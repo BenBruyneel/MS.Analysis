@@ -3,9 +3,6 @@
 \name{msInfo}
 \alias{msInfo}
 \title{msInfo}
-\value{
-a new msInfo object
-}
 \description{
 R6 Class dealing with mass spectrometry data in an organised manner. This class
 is a descendant of datalist. In principle it holds 3 dataInfo objects which
@@ -74,88 +71,90 @@ purrr::map_dbl(msR$spectra$info$id, ~ msR$do("spectra", "tic", id = .x))
 \code{\link[dataInfo:dataElement]{dataInfo::dataElement}} -> \code{\link[dataInfo:dataInfo]{dataInfo::dataInfo}} -> \code{\link[dataInfo:dataList]{dataInfo::dataList}} -> \code{msInfo}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{chromatograms}}{provides access to the chromatograms dataInfo object}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{chromatograms}}{provides access to the chromatograms dataInfo object}
 
-\item{\code{spectra}}{provides access to the dataInfo object}
+    \item{\code{spectra}}{provides access to the dataInfo object}
 
-\item{\code{files}}{provides access to the files dataInfo object}
-}
-\if{html}{\out{</div>}}
+    \item{\code{files}}{provides access to the files dataInfo object}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-msInfo-new}{\code{msInfo$new()}}
-\item \href{#method-msInfo-clone}{\code{msInfo$clone()}}
+  \itemize{
+    \item \href{#method-msInfo-initialize}{\code{msInfo$new()}}
+    \item \href{#method-msInfo-clone}{\code{msInfo$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="getIndex"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-getIndex'><code>dataInfo::dataInfo$getIndex()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="load"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-load'><code>dataInfo::dataInfo$load()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="save"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-save'><code>dataInfo::dataInfo$save()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="validIndex"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-validIndex'><code>dataInfo::dataInfo$validIndex()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="add"><a href='../../dataInfo/html/dataList.html#method-dataList-add'><code>dataInfo::dataList$add()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="delete"><a href='../../dataInfo/html/dataList.html#method-dataList-delete'><code>dataInfo::dataList$delete()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="do"><a href='../../dataInfo/html/dataList.html#method-dataList-do'><code>dataInfo::dataList$do()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="idFromIndex"><a href='../../dataInfo/html/dataList.html#method-dataList-idFromIndex'><code>dataInfo::dataList$idFromIndex()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="indexFromId"><a href='../../dataInfo/html/dataList.html#method-dataList-indexFromId'><code>dataInfo::dataList$indexFromId()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="item"><a href='../../dataInfo/html/dataList.html#method-dataList-item'><code>dataInfo::dataList$item()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="item.list"><a href='../../dataInfo/html/dataList.html#method-dataList-item.list'><code>dataInfo::dataList$item.list()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="print"><a href='../../dataInfo/html/dataList.html#method-dataList-print'><code>dataInfo::dataList$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="getIndex"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-getIndex'><code>dataInfo::dataInfo$getIndex()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="load"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-load'><code>dataInfo::dataInfo$load()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="save"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-save'><code>dataInfo::dataInfo$save()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataInfo" data-id="validIndex"><a href='../../dataInfo/html/dataInfo.html#method-dataInfo-validIndex'><code>dataInfo::dataInfo$validIndex()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="add"><a href='../../dataInfo/html/dataList.html#method-dataList-add'><code>dataInfo::dataList$add()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="delete"><a href='../../dataInfo/html/dataList.html#method-dataList-delete'><code>dataInfo::dataList$delete()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="do"><a href='../../dataInfo/html/dataList.html#method-dataList-do'><code>dataInfo::dataList$do()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="idFromIndex"><a href='../../dataInfo/html/dataList.html#method-dataList-idFromIndex'><code>dataInfo::dataList$idFromIndex()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="indexFromId"><a href='../../dataInfo/html/dataList.html#method-dataList-indexFromId'><code>dataInfo::dataList$indexFromId()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="item"><a href='../../dataInfo/html/dataList.html#method-dataList-item'><code>dataInfo::dataList$item()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="item.list"><a href='../../dataInfo/html/dataList.html#method-dataList-item.list'><code>dataInfo::dataList$item.list()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="dataInfo" data-topic="dataList" data-id="print"><a href='../../dataInfo/html/dataList.html#method-dataList-print'><code>dataInfo::dataList$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-msInfo-new"></a>}}
-\if{latex}{\out{\hypertarget{method-msInfo-new}{}}}
-\subsection{Method \code{new()}}{
-create a new info object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{msInfo$new(name = "", initializeFunctions = TRUE, clone = TRUE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{name}}{character vector. Name of this object (optional)}
-
-\item{\code{initializeFunctions}}{if TRUE (default) then a set of 'standard' dataFunctions
+\if{html}{\out{<a id="method-msInfo-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-msInfo-initialize}{}}}
+\subsection{\code{msInfo$new()}}{
+  create a new info object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{msInfo$new(name = "", initializeFunctions = TRUE, clone = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{character vector. Name of this object (optional)}
+      \item{\code{initializeFunctions}}{if TRUE (default) then a set of 'standard' dataFunctions
 are added to the dataInfo objects. When FALSE, then it doesn't happen}
-
-\item{\code{clone}}{logical value, defines whether the dataElements to be added
+      \item{\code{clone}}{logical value, defines whether the dataElements to be added
 are to be 'cloned'. Default is TRUE to prevent odd situations, option
 may be removed in the future}
-
-\item{\code{dataObjects}}{by default a set of dataInfo objects named 'files',
+      \item{\code{dataObjects}}{by default a set of dataInfo objects named 'files',
 'chromatograms' & 'spectra'. Note: the files object is not defined as
 to what it will contain. This can be peak lists, information on the
 spectra in the raw (Thermo Scientific) files, etc etc. It's not obligatory
 to use the default dataInfo objects. However, if the default dataInfo objects
 are not present, then adding the regular dataFunctions will fail. It is
 of course possible to have non-standard (extra) dataInfo objects.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a new msInfo object
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-msInfo-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-msInfo-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{msInfo$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{msInfo$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{msInfo$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

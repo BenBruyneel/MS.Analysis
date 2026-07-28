@@ -74,7 +74,8 @@ intensities (FALSE) or only the intensities of m/z's which fall within the
 rtLimits (TRUE, default)}
 
 \item{intensityPercentage}{Whether to display the intensity axis in percentages
-(default FALSE)}
+(default FALSE). Note: a 'side' effect is that all intensities are normalized
+per chromatogram}
 
 \item{rtLabelFormat}{defines the format of the rt (x) axis labels.
 See eg \link[MS.Analysis]{formatDigits}. Default is \link[ggplot2]{waiver}
