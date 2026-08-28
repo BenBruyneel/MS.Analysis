@@ -564,13 +564,13 @@ plotSpectrumOverlay <- function(spectrumList,
   if (length(spectrumWidths) == 1){
     spectrumWidths <- rep(spectrumWidths, length(spectrumList))
   }
+  if (length(centroidPlot) == 1){
+    centroidPlot <- rep(centroidPlot, length(spectrumList))
+  }
   spectrumWidths <- map_dbl(spectrumWidths,
                             ~ifelse(is.na(.x),
                                     ifelse(overrideLineWidth, 0.5,  0.25),
                                     .x) * generalLineWidth)
-  if (length(centroidPlot) == 1){
-    centroidPlot <- rep(centroidPlot, length(spectrumList))
-  }
   yMaxStored <- max(spectrumList[[1]]$intensity)
   if (intensityPercentage){
     spectrumList[[1]]$intensity <- (spectrumList[[1]]$intensity/yMaxStored)*100
@@ -612,16 +612,16 @@ plotSpectrumOverlay <- function(spectrumList,
   for (counter in 1:length(spectrumList)){
     if (centroidPlot[counter]) {
       g <- g + ggplot2::geom_segment(data = spectrumList[[counter]], ggplot2::aes(x = mz, xend = mz, y = 0, yend = intensity),
-                            color = spectrumColors[counter],
-                            alpha = spectrumAlphas[counter],
-                            linetype = spectrumLineTypes[counter],
-                            linewidth = spectrumWidths[counter])
+                                     color = spectrumColors[counter],
+                                     alpha = spectrumAlphas[counter],
+                                     linetype = spectrumLineTypes[counter],
+                                     linewidth = spectrumWidths[counter])
     } else {
       g <- g + ggplot2::geom_line(data = spectrumList[[counter]], ggplot2::aes(x = mz, y = intensity),
-                         color = spectrumColors[counter],
-                         alpha = spectrumAlphas[counter],
-                         linetype = spectrumLineTypes[counter],
-                         linewidth = spectrumWidths[counter])
+                                  color = spectrumColors[counter],
+                                  alpha = spectrumAlphas[counter],
+                                  linetype = spectrumLineTypes[counter],
+                                  linewidth = spectrumWidths[counter])
     }
   }
   if (!is.null(mzLimits)){
@@ -632,7 +632,15 @@ plotSpectrumOverlay <- function(spectrumList,
   if (!is.null(intensityLimits)){
     g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = intensityLimits)
   } else {
-    g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,maxY))
+    if (!is.null(mzLimits)){
+      g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,maxY))
+    } else {
+      if (intensityPercentage){
+        g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,100*(maxY/yMaxStored)))
+      } else {
+        g <- g + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,maxY))
+      }
+    }
   }
   if (!is.null(annotateMz)){
     for (i in 1:length(annotateMz)){
@@ -644,7 +652,7 @@ plotSpectrumOverlay <- function(spectrumList,
     g <- g + ggplot2::theme(plot.margin = ggplot2::unit(plot.margins, plot.margins.units))
   }
   g <- g + ggplot2::labs(title = spectrumTitle, subtitle = spectrumSubtitle, caption = spectrumCaption,
-                x = mzTitle, y = intensityTitle)
+                         x = mzTitle, y = intensityTitle)
   g <- g + ggplot2::theme(
     axis.title.x = ifelseProper(is.na(mzTitle),
                                 ggplot2::waiver(),
@@ -659,6 +667,7 @@ plotSpectrumOverlay <- function(spectrumList,
   )
   return(g)
 }
+
 
 #' @title plotSpectrumMirror
 #'
