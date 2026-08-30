@@ -9,4 +9,4 @@ Current Version 0.6.6
 
 Work in progress!
 
-May 18th, 2025
+August 30th, 2026
