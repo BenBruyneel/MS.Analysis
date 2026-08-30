@@ -546,6 +546,7 @@ plotSpectrumOverlay <- function(spectrumList,
                                 spectrumCaption = ggplot2::waiver(),
                                 generalTextSize = NA,
                                 generalLineWidth = NA, overrideLineWidth = FALSE){
+  intensityPercentage <- !intensityPercentage # Temporary solution !!
   generalTextSize <- ifelse(is.na(generalTextSize),
                             10,
                             generalTextSize)
