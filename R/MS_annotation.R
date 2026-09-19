@@ -207,8 +207,6 @@ annotation <- R6::R6Class("annotation",
 
                             #' @description internal function to get all the (public)
                             #'  variables into a list (for saving purposes)
-                            #'
-                            #' @return a named list
                             getList = function(){
                               return(list(
                                 nameX = self$nameX,

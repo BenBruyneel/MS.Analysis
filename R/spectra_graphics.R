@@ -202,6 +202,9 @@ spectrumLabels <- function(
 #'  the centroidPlot argument
 #' @param labels should be the result of a spectrumLabels function or NA. By default
 #'  attempts to use the spectrumDetectPeaksMethod together with the labelFormat arguments.
+#'@param useRepel logical vector describing what to use for drawing the labels.
+#'  If FALSE (default) then \link[ggplot2]{geom_text} is used, otherwise \link[ggrepel]{geom_text_repel}
+#'  is used
 #' @param returnPeaks default is FALSE. If TRUE, then a list object is returned of which
 #'  element 1 is the peak list (detected or provided) and element 2 is the ggplot object
 #'  of the spectrum
@@ -309,42 +312,43 @@ spectrumLabels <- function(
 #'
 #' @export
 plotSpectrum <- function(spectrum,
-                         mzLimits = NULL, intensityLimits = NULL,
-                         incrScaleIntensity = 0.05, scaleIntensityLocal = TRUE,
-                         intensityPercentage = FALSE,
-                         mzLabelFormat = ggplot2::waiver(),
-                         intensityLabelFormat = ifelse(intensityPercentage,
-                                                       formatDigits(0),
-                                                       formatScientificDigits(4)),
-                         centroidPlot = FALSE, cutOff = 0.01,
-                         labelFormat = formatDigitsLargeNumbers(4),
-                         spectrumDetectPeaksMethod = ifelseProper(centroidPlot,
-                                                                  spectrumDetectPeaks.Centroid(),
-                                                                  spectrumDetectPeaks.Profile()),
-                         labels = spectrumLabels(spectrumDetectPeaksMethod(spectrum), label = labelFormat),
-                         returnPeaks = FALSE, returnAllPeaks = FALSE,
-                         labelCutOff = ifelse(is.na(cutOff),
-                                              0.01,
-                                              cutOff),
-                         labelOverlap = FALSE, labelSize = NA, labelColor = "black", labelAlpha = 1,
-                         labelAngle = 0, labelNudge_x = 0.02, labelNudge_y = 0.01,
-                         annotateMz = NULL,
-                         lineAlpha = 1,
-                         lineColor =  "black",
-                         lineWidth = NA,
-                         lineType = "solid",
-                         plot.margins.default = FALSE,
-                         plot.margins = c(5,15,5,5),
-                         plot.margins.units = "points",
-                         mzTitle = "m/z",
-                         intensityTitle = ifelse(intensityPercentage,
-                                                 "Intensity (%)",
-                                                 "Intensity"),
-                         spectrumTitle = ggplot2::waiver(),
-                         spectrumSubtitle = ggplot2::waiver(),
-                         spectrumCaption = ggplot2::waiver(),
-                         generalTextSize = NA,
-                         generalLineWidth = NA, overrideLineWidth = FALSE){
+                          mzLimits = NULL, intensityLimits = NULL,
+                          incrScaleIntensity = 0.05, scaleIntensityLocal = TRUE,
+                          intensityPercentage = FALSE,
+                          mzLabelFormat = ggplot2::waiver(),
+                          intensityLabelFormat = ifelse(intensityPercentage,
+                                                        formatDigits(0),
+                                                        formatScientificDigits(4)),
+                          centroidPlot = FALSE, cutOff = 0.01,
+                          labelFormat = formatDigitsLargeNumbers(4),
+                          spectrumDetectPeaksMethod = ifelseProper(centroidPlot,
+                                                                   spectrumDetectPeaks.Centroid(),
+                                                                   spectrumDetectPeaks.Profile()),
+                          labels = spectrumLabels(spectrumDetectPeaksMethod(spectrum), label = labelFormat),
+                          useRepel = FALSE,
+                          returnPeaks = FALSE, returnAllPeaks = FALSE,
+                          labelCutOff = ifelse(is.na(cutOff),
+                                               0.01,
+                                               cutOff),
+                          labelOverlap = FALSE, labelSize = NA, labelColor = "black", labelAlpha = 1,
+                          labelAngle = 0, labelNudge_x = 0.02, labelNudge_y = 0.01,
+                          annotateMz = NULL,
+                          lineAlpha = 1,
+                          lineColor =  "black",
+                          lineWidth = NA,
+                          lineType = "solid",
+                          plot.margins.default = FALSE,
+                          plot.margins = c(5,15,5,5),
+                          plot.margins.units = "points",
+                          mzTitle = "m/z",
+                          intensityTitle = ifelse(intensityPercentage,
+                                                  "Intensity (%)",
+                                                  "Intensity"),
+                          spectrumTitle = ggplot2::waiver(),
+                          spectrumSubtitle = ggplot2::waiver(),
+                          spectrumCaption = ggplot2::waiver(),
+                          generalTextSize = NA,
+                          generalLineWidth = NA, overrideLineWidth = FALSE){
   generalTextSize <- ifelse(is.na(generalTextSize),
                             10,
                             generalTextSize)
@@ -396,8 +400,14 @@ plotSpectrum <- function(spectrum,
     if (!is.na(labelCutOff)){
       labels <- labels %>% dplyr::filter(intensity > (labelCutOff*maxY))
     }
-    g <- g + ggplot2::geom_text(data = labels, ggplot2::aes(x = mz, y = intensity, label = label), angle = labelAngle, color = labelColor, alpha = labelAlpha,
-                       check_overlap = labelOverlap, size = labelSize, nudge_y = labelNudge_y*maxY, nudge_x = labelNudge_x*mzRangeSize)
+    if (!useRepel){
+      g <- g + ggplot2::geom_text(data = labels, ggplot2::aes(x = mz, y = intensity, label = label), angle = labelAngle, color = labelColor, alpha = labelAlpha,
+                                  check_overlap = labelOverlap, size = labelSize, nudge_y = labelNudge_y*maxY, nudge_x = labelNudge_x*mzRangeSize)
+    } else {
+      g <- g + ggrepel::geom_text_repel(data = labels, ggplot2::aes(x = mz, y = intensity, label = label), angle = labelAngle, color = labelColor, alpha = labelAlpha,
+                                        # check_overlap = labelOverlap,
+                                        size = labelSize, nudge_y = labelNudge_y*maxY, nudge_x = labelNudge_x*mzRangeSize)
+    }
   }
   if (!is.null(mzLimits)){
     g <- g + ggplot2::scale_x_continuous(expand = c(0,0),limits = mzLimits, labels = mzLabelFormat)
@@ -419,7 +429,7 @@ plotSpectrum <- function(spectrum,
     g <- g + ggplot2::theme(plot.margin = ggplot2::unit(plot.margins, plot.margins.units))
   }
   g <- g + ggplot2::labs(title = spectrumTitle, subtitle = spectrumSubtitle, caption = spectrumCaption,
-                x = mzTitle, y = intensityTitle)
+                         x = mzTitle, y = intensityTitle)
   g <- g + ggplot2::theme(
     axis.title.x = ifelseProper(is.na(mzTitle),
                                 ggplot2::waiver(),

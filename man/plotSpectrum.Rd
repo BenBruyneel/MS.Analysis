@@ -20,6 +20,7 @@ plotSpectrum(
   spectrumDetectPeaksMethod = ifelseProper(centroidPlot, spectrumDetectPeaks.Centroid(),
     spectrumDetectPeaks.Profile()),
   labels = spectrumLabels(spectrumDetectPeaksMethod(spectrum), label = labelFormat),
+  useRepel = FALSE,
   returnPeaks = FALSE,
   returnAllPeaks = FALSE,
   labelCutOff = ifelse(is.na(cutOff), 0.01, cutOff),
@@ -92,6 +93,10 @@ the centroidPlot argument}
 
 \item{labels}{should be the result of a spectrumLabels function or NA. By default
 attempts to use the spectrumDetectPeaksMethod together with the labelFormat arguments.}
+
+\item{useRepel}{logical vector describing what to use for drawing the labels.
+If FALSE (default) then \link[ggplot2]{geom_text} is used, otherwise \link[ggrepel]{geom_text_repel}
+is used}
 
 \item{returnPeaks}{default is FALSE. If TRUE, then a list object is returned of which
 element 1 is the peak list (detected or provided) and element 2 is the ggplot object

@@ -281,7 +281,7 @@ labels put at axisConnectLevel above int of m/z and axisConnect lines}
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    a named list
+    a new annotation object
   }
 }
 
